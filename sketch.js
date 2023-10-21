@@ -10,24 +10,94 @@ class Information {
         textAlign(LEFT);
         fill(255)
         textSize(25);
-        text('HP : '+this.hp, 10, 50);
-        text('SCORE : '+int(this.score), 10, 100);
-        text('LEVEL : '+this.level, 10, 150);
-        text('ROUNDS : '+player.attack_num, 10, 200);
+        this.displayHp()
+        this.displayScore()
+        this.displayLevel()
+        this.displayRounds()
         this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
 
         if(this.hp <= 0){
             game_state = 2
         }
 
-        if(this.level == 1 && this.score >= 1000){
-            this.level = 2
-            player.attack_num = 10
-        }
-        if(this.level == 2 && this.score >= 3000){
+        if(this.score >= 3000){
             this.level = 3
-            player.attack_num = 10
         }
+        if(this.score >= 1000){
+            this.level = 2
+        }
+    }
+    
+    //体力の表示
+    displayHp(){
+        textAlign(LEFT)
+        fill(255)
+        noStroke()
+        textSize(25)
+        text('HP:'+this.hp, 15, 30)
+        rectMode(CORNER)
+        fill(255, 180)
+        noStroke()
+        rect(100, 17, this.hp*2, 10)
+        noFill()
+        stroke(255)
+        rect(100, 17, 200, 10)
+    }
+
+    //スコアの表示
+    displayScore(){
+        textAlign(LEFT)
+        fill(255)
+        noStroke()
+        textSize(25)
+        text('SCORE : ', 15, 70);
+        textSize(35)
+        text(int(this.score), 115, 70)
+        for(var i=0; i<5; i++){
+            textSize(35)
+            noFill()
+            stroke(255, 20)
+            strokeWeight(i*2)
+            text(int(this.score), 115, 70)
+        }
+    }
+
+    //レベルの表示
+    displayLevel(){
+        fill(255)
+        noStroke()
+        textSize(25)
+        text('LEVEL : ', 15, 110);
+        if(this.level == 1)
+            fill(255)
+        else if(this.level == 2)
+            fill(253, 255, 141)
+        else
+            fill(255, 90, 90)
+        textSize(30)
+        text(this.level, 110, 110)
+    }
+
+    //残弾数の表示
+    displayRounds(){
+        textAlign(LEFT)
+        fill(255)
+        noStroke()
+        textSize(25)
+        text('ROUNDS : '+player.attack_num, 20, 480);
+
+        noFill()
+        stroke(255)
+        strokeWeight(1)
+        rectMode(CORNER)
+        rect(171, 455, 123, 34)
+
+        noStroke()
+        fill(255)
+        for(var i=0; i<player.attack_num; i++){
+            rect(173+12*i, 457, 10, 30)
+        }
+
     }
 }
 
@@ -200,8 +270,11 @@ class Enemy {
     display(){
         noStroke()
         fill(255, 0, 85)
-        triangle(this.location.x-30, this.location.y, this.location.x, this.location.y-15, this.location.x, this.location.y+15)
-        triangle(this.location.x+30, this.location.y, this.location.x, this.location.y-15, this.location.x, this.location.y+15)
+        beginShape()
+            vertex(this.location.x-15,this.location.y)
+            vertex(this.location.x+15,this.location.y-15)
+            vertex(this.location.x+15,this.location.y+15)
+        endShape(CLOSE)
     }
 
     //攻撃の追加
@@ -292,13 +365,13 @@ var player;
 var info;
 
 //初期化
-function setup() {
-    createCanvas(1000, 500);
+function setup(){
+    let canvas = createCanvas(1000, 500);
     textFont('Bahnschrift');
 }
 
 //描画
-function draw() {
+function draw(){
     background(0);
     fill(255);
     switch(game_state) {
@@ -339,7 +412,7 @@ class PlayerAttack {
 class EnemyAttack {
     //位置の定義
     constructor(x, y){
-        this.velocity = createVector(-7, 0)
+        this.velocity = createVector(-8, 0)
         this.location = createVector(x, y)
     }
 
