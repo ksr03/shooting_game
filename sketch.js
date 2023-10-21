@@ -443,10 +443,12 @@ function drawTitle() {
     fill(255)
     textAlign(CENTER);
     textSize(50);
-    text('LONG FLIGHT', 500, 250);
-    fill(255, opacity)
+    text('LONG FLIGHT', 500, 230);
+    fill(255, 200, 200, opacity)
     textSize(30)
-    text("Press the arrow key...", 500, 300)
+    text("Press the arrow key to start.", 500, 270)
+    drawArrowKey(380, 370)
+    drawSpaceKey(630, 396)
 
     if(opacity <= 255){
         opacity+=3
@@ -498,6 +500,57 @@ function drawScore(){
             opacity = 0
         }
     }
+}
+
+function drawArrowKey(x, y){
+    stroke(255)
+    strokeWeight(1)
+    fill(255, 50)
+    rectMode(CENTER)
+    rect(x, y-20, 40, 40)
+    rect(x, y+30, 40, 40)
+    rect(x-50, y+30, 40, 40)
+    rect(x+50, y+30, 40, 40)
+
+    fill(255)
+    noStroke()
+    beginShape()
+        vertex(x,y-30)
+        vertex(x-10, y-13)
+        vertex(x+10, y-13)
+    endShape(CLOSE)
+    beginShape()
+        vertex(x,y+40)
+        vertex(x-10, y+23)
+        vertex(x+10, y+23)
+    endShape(CLOSE)
+    beginShape()
+        vertex(x-59,y+30)
+        vertex(x-42, y+20)
+        vertex(x-42, y+40)
+    endShape(CLOSE)
+    beginShape()
+        vertex(x+59,y+30)
+        vertex(x+42, y+20)
+        vertex(x+42, y+40)
+    endShape(CLOSE)
+    textSize(20)
+    textAlign(CENTER)
+    text('move with arrow keys', x, y+75)
+}
+
+function drawSpaceKey(x, y){
+    stroke(255)
+    strokeWeight(1)
+    fill(255, 50)
+    rectMode(CENTER)
+    rect(x, y, 150, 40)
+    fill(255)
+    noStroke()
+    textSize(20)
+    textAlign(CENTER)
+    text('space bar', x, y+5)
+    text('shoot with space bar', x, y+50)
 }
 
 function keyPressed() {
