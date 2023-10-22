@@ -3,12 +3,14 @@
  * @param {number} hp 体力
  * @param {number} score スコア
  * @param {number} level レベル
+ * @param {number} interval_time 前回ダメージを受けた時間
  */
 class Information {
     constructor(){
         this.hp = 100
         this.score = 0
         this.level = 1
+        this.interval_time = -1000
     }
 
     /**
@@ -132,6 +134,17 @@ class Information {
         }
 
     }
+
+    /**
+     * 体力を減らす
+     * @param {number} x ダメージ数
+     */
+    damage(x){
+        if(millis() - this.interval_time >= 700){
+            this.hp -= x
+            this.interval_time = millis()
+        }
+    }
 }
 
 /**
@@ -144,9 +157,8 @@ class Information {
  * @param {Array} attack_list 弾丸クラスのリスト
  * @param {number} attack_interval 弾丸を発射した直近の時間
  * @param {number} attack_charge 弾丸のチャージ率
- * @param {number} effect_num エフェクトを作成した直近の番号:TODO
+ * @param {number} effect_num エフェクトを作成した直近の番号
  * @param {number} effect_list エフェクトクラスのリスト 
- * @param {number} interval クールタイム:TODO
  */
 class Player {
     constructor(){
@@ -164,8 +176,6 @@ class Player {
         //エフェクトの管理
         this.effect_num = 0
         this.effect_list = []
-
-        this.interval = -1000
     }
 
     /**
@@ -217,7 +227,7 @@ class Player {
         //プレイヤー本体
         rectMode(CENTER)
         noStroke()
-        if(millis() - this.interval >= 700)
+        if(millis() - info.interval_time >= 700)
             fill(255)
         else if(int(millis()/130) % 2 == 0){
             fill(250, 255, 80, 230)
@@ -314,17 +324,6 @@ class Player {
             }
         }
     }
-
-    /**
-     * 体力を減らす
-     * @param {number} x ダメージ数
-     */
-    damage(x){
-        if(millis() - player.interval >= 700){
-            info.hp -= x
-            this.interval = millis()
-        }
-    }
 }
 
 /**
@@ -377,7 +376,7 @@ class Effect {
  * @param {Vector} velocity 速度
  * @param {Array} attack_list 弾丸クラスのリスト
  * @param {number} attack_time 弾丸を発射した直近の時間
- * @param {number} angle 角度:TODO
+ * @param {number} effect_angle エフェクトの角度
  */
 class Enemy {
     constructor(){
@@ -385,7 +384,7 @@ class Enemy {
         this.location = createVector(1015, int(random(10, 490)))
         this.attack_list = []
         this.attack_time = 0
-        this.angle = 0
+        this.effect_angle = 0
     }
 
     /**
@@ -405,7 +404,7 @@ class Enemy {
         //プレイヤーとの接触
         this.collision()
 
-        this.angle++
+        this.effect_angle++
     }
 
     /**
@@ -440,7 +439,7 @@ class Enemy {
         strokeWeight(1)
         beginShape()
         for(var i=0; i<5; i++){
-            vertex(this.location.x+sin(i*1.2566 + this.angle/50)*23 + 5, this.location.y+cos(i*1.2566 + this.angle/50)*23)
+            vertex(this.location.x+sin(i*1.2566 + this.effect_angle/50)*23 + 5, this.location.y+cos(i*1.2566 + this.effect_angle/50)*23)
         }
         endShape(CLOSE)
     }
@@ -484,7 +483,7 @@ class Enemy {
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 40 ){
             this.location.x = -50
-            player.damage(30)
+            info.damage(30)
         }
     }
 }
@@ -535,42 +534,6 @@ class EnemyList{
         for(var i=0; i<this.enemy_list.length; i++){
             this.enemy_list[i].draw()
         }
-    }
-}
-
-
-//各キーの判定
-var up, down, left, right, space;
-
-//ゲームの状態
-var game_state=0;
-var opacity=0
-
-var player;
-var info;
-
-/**
- * 初期化を行う
- */
-function setup(){
-    createCanvas(1000, 500);
-    textFont('Bahnschrift');
-}
-
-//描画
-function draw(){
-    background(0);
-    fill(255);
-    switch(game_state) {
-        case 0:
-            drawTitle();
-            break;
-        case 1:
-            drawGame();
-            break;
-        case 2:
-            drawScore()
-            break;
     }
 }
 
@@ -668,8 +631,35 @@ class EnemyAttack {
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 20 ){
             this.location.x = -10
-            player.damage(15)
+            info.damage(15)
         }
+    }
+}
+
+
+//各キーの判定
+var up, down, left, right, space;
+
+function setup(){
+    createCanvas(1000, 500);
+    textFont('Bahnschrift');
+    game_state=0;
+    opacity=0
+}
+
+function draw(){
+    background(0);
+    fill(255);
+    switch(game_state) {
+        case 0:
+            drawTitle();
+            break;
+        case 1:
+            drawGame();
+            break;
+        case 2:
+            drawScore()
+            break;
     }
 }
 
@@ -716,7 +706,7 @@ function drawGame() {
 }
 
 /**
- * スコア画面を描画する関数
+ * スコア画面を描画する
  */
 function drawScore(){
     background(0);
