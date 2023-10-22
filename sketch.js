@@ -1,21 +1,33 @@
 /**
- * プレイヤーの情報を保持
- * @param {number} hp プレイヤーの体力
+ * プレイヤーの情報を保持する
+ * @param {number} hp 体力
  * @param {number} score スコア
  * @param {number} level レベル
+ * @param {number} interval_time 前回ダメージを受けた時間
  */
 class Information {
     constructor(){
         this.hp = 100
         this.score = 0
         this.level = 1
+        this.interval_time = -1000
     }
 
-    display(){
-        this.displayHp()
-        this.displayScore()
-        this.displayLevel()
-        this.displayRounds()
+    /**
+     * drawで行う処理
+     */
+    draw(){
+        this.update()
+        this.drawHp()
+        this.drawScore()
+        this.drawLevel()
+        this.drawRounds()
+    }
+
+    /**
+     * レベル/スコアの更新を行う
+     */
+    update(){
         this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
 
         if(this.hp <= 0){
@@ -29,8 +41,10 @@ class Information {
         }
     }
     
-    //体力の表示
-    displayHp(){
+    /**
+     * 体力を表示する
+     */
+    drawHp(){
         textAlign(LEFT)
         fill(255)
         noStroke()
@@ -45,8 +59,10 @@ class Information {
         rect(100, 17, 200, 10)
     }
 
-    //スコアの表示
-    displayScore(){
+    /**
+     * スコアを表示する
+     */
+    drawScore(){
         textAlign(LEFT)
         fill(255)
         noStroke()
@@ -63,8 +79,10 @@ class Information {
         }
     }
 
-    //レベルの表示
-    displayLevel(){
+    /**
+     * レベルを表示する
+     */
+    drawLevel(){
         fill(255)
         noStroke()
         textSize(25)
@@ -79,8 +97,10 @@ class Information {
         text(this.level, 110, 110)
     }
 
-    //残弾の表示
-    displayRounds(){
+    /**
+     * 残弾を表示する
+     */
+    drawRounds(){
         //残段数チャージの表示
         textAlign(CENTER)
         fill(255)
@@ -114,12 +134,34 @@ class Information {
         }
 
     }
+
+    /**
+     * 体力を減らす
+     * @param {number} x ダメージ数
+     */
+    damage(x){
+        if(millis() - this.interval_time >= 700){
+            this.hp -= x
+            this.interval_time = millis()
+        }
+    }
 }
 
-//プレイヤークラス
+/**
+ * プレイヤーの情報を保持する
+ * @param {Vector} location 位置
+ * @param {Vector} velocity 速度
+ * @param {Vector} accel 加速度
+ * @param {number} topspeed 最高速度
+ * @param {number} attack_num 残段数
+ * @param {Array} attack_list 弾丸クラスのリスト
+ * @param {number} attack_interval 弾丸を発射した直近の時間
+ * @param {number} attack_charge 弾丸のチャージ率
+ * @param {number} effect_num エフェクトを作成した直近の番号
+ * @param {number} effect_list エフェクトクラスのリスト 
+ */
 class Player {
     constructor(){
-        //位置・速度・加速度の定義
         this.location = createVector(500, 200)
         this.velocity = createVector(0, 0)
         this.accel = createVector(0, 0)
@@ -128,17 +170,35 @@ class Player {
         //弾丸の管理
         this.attack_num = 10;
         this.attack_list = []
-        this.attack_time = 0
+        this.attack_interval = 0
         this.attack_charge = 1
         
         //エフェクトの管理
         this.effect_num = 0
         this.effect_list = []
-
-        this.interval = -1000
     }
 
-    //移動
+    /**
+     * drawで行う処理
+     */
+    draw(){
+        this.move()
+        this.drawPlayer()
+        this.addEffect()
+        this.drawEffect()
+
+        if(space){
+            this.addAttack(this.location.x, this.location.y)
+        }
+        this.drawAttack()
+
+        //チャージ関連の処理
+        this.updateCharge()
+    }
+
+    /**
+     * 位置を更新する
+     */
     move(){
         //加速度の更新
         if(right) this.accel.x += 0.3
@@ -157,31 +217,22 @@ class Player {
         if(this.location.x < 15) this.location.x = 15
         if(this.location.x > 985) this.location.x = 985
         if(this.location.y < 15) this.location.y = 15
-        if(this.location.y > 485) this.location.y = 485
-        
-        //攻撃関連の処理
-        if(space){
-            this.addAttack(this.location.x, this.location.y)
-        }
-        this.displayAttack()
-
-        //チャージ関連の処理
-        this.updateCharge()
+        if(this.location.y > 485) this.location.y = 485        
     }
 
     /**
      * プレイヤーを描画する
      */
-    display(){
+    drawPlayer(){
         //プレイヤー本体
         rectMode(CENTER)
         noStroke()
-        if(millis() - this.interval >= 700)
+        if(millis() - info.interval_time >= 700)
             fill(255)
         else if(int(millis()/130) % 2 == 0){
-            fill(250, 255, 180, 180)
+            fill(250, 255, 80, 230)
         } else
-            fill(250, 255, 180, 80)
+            fill(250, 255, 80, 130)
         rect(this.location.x, this.location.y, 30, 30)
 
         //プレイヤーの装飾
@@ -194,9 +245,19 @@ class Player {
         for(var i=0; i<100; i++){
             line(this.location.x+i*10, this.location.y, this.location.x+i*10+5, this.location.y)
         }
+
+        //グロー
+        fill(255, 6)
+        noStroke()
+        ellipseMode(CENTER)
+        for(var i=0; i<20; i++){
+            ellipse(this.location.x, this.location.y, 15+7*i, 15+7*i)
+        }
     }
 
-    //エフェクトの追加
+    /**
+     * エフェクトを作成して配列に追加する
+     */
     addEffect(){
         const effect = new Effect(this.location.x, this.location.y)
         if(this.effect_list.length < 50){
@@ -209,43 +270,43 @@ class Player {
             this.effect_num = 0
     }
 
-    //エフェクトの描画
-    displayEffect(){
-        this.addEffect()
-        
+    /**
+     * エフェクトの移動と描画を行う
+     */
+    drawEffect(){
         for(var i=0; i<this.effect_list.length; i++){
-            this.effect_list[i].move()
-            this.effect_list[i].display()
+            this.effect_list[i].draw()
         }
     }
 
-    //攻撃の追加
+    /**
+     * 攻撃を作成して配列に追加する
+     */
     addAttack(){
-        if(this.attack_num > 0 && (millis() - this.attack_time) > 200){
+        if(this.attack_num > 0 && (millis() - this.attack_interval) > 200){
             const attack = new PlayerAttack(this.location.x, this.location.y)
             this.attack_list.push(attack)
             this.attack_num--
-            this.attack_time = millis()
-            this.setCharge()
+
+            this.attack_interval = millis()
+            if(this.attack_charge == 1){
+                this.attack_charge = 0
+            }
         }
     }
 
-    //攻撃の描画
-    displayAttack(){
+    /**
+     * 攻撃を描画する
+     */
+    drawAttack(){
         for(var i=0; i<this.attack_list.length; i++){
-            this.attack_list[i].move()
-            this.attack_list[i].display()
+            this.attack_list[i].draw()
         }
     }
 
-    //チャージ時間の初期化
-    setCharge(){
-        if(this.attack_charge == 1){
-            this.attack_charge = 0
-        }
-    }
-
-    //チャージ時間の処理
+    /**
+     * チャージ率を更新する
+     */
     updateCharge(){
         if(this.attack_charge < 1){
             this.attack_charge += 0.0025
@@ -263,16 +324,16 @@ class Player {
             }
         }
     }
-
-    damage(x){
-        info.hp -= x
-        this.interval = millis()
-    }
 }
 
-//エフェクトクラス
+/**
+ * エフェクトの情報を保持する
+ * @param {Vector} location 位置
+ * @param {Vector} velocity 速度
+ * @param {number} angle 角度
+ * @param {number} opacity 透明度
+ */
 class Effect {
-    //位置の定義
     constructor(x, y){
         this.location = createVector(x, y)
         this.angle = random(0, 6.28)
@@ -280,13 +341,25 @@ class Effect {
         this.opacity = 150
     }
 
-    //移動
+    /**
+     * drawで行う処理
+     */
+    draw(){
+        this.move()
+        this.drawEffect()
+    }
+
+    /**
+     * 位置を更新する
+     */
     move(){
         this.location.add(this.velocity)
     }
 
-    //弾丸の描画
-    display() {
+    /**
+     * エフェクトを描画する
+     */
+    drawEffect() {
         ellipseMode(CENTER)
         noStroke()
         fill(255, this.opacity)
@@ -297,39 +370,55 @@ class Effect {
     }
 }
 
-//エネミークラス
+/**
+ * エネミーの情報を保持する
+ * @param {Vector} location 位置
+ * @param {Vector} velocity 速度
+ * @param {Array} attack_list 弾丸クラスのリスト
+ * @param {number} attack_time 弾丸を発射した直近の時間
+ * @param {number} effect_angle エフェクトの角度
+ */
 class Enemy {
-    //位置・攻撃の定義
     constructor(){
         this.velocity = createVector(-4, 0)
         this.location = createVector(1015, int(random(10, 490)))
         this.attack_list = []
         this.attack_time = 0
-        this.angle = 0
+        this.effect_angle = 0
     }
 
-    //移動
-    move(){
-        //位置の更新
-        this.location.add(this.velocity)
-        
+    /**
+     * drawで行う処理
+     */
+    draw(){
+        this.move()
+        this.drawEnemy()
+
         //攻撃の管理
         this.addAttack()
-        this.displayAttack();
+        this.drawAttack();
         
         //撃ち落されたかどうか
-        if(player.attack_list.length > 0){
         this.drop()
-        }
         
         //プレイヤーとの接触
         this.collision()
 
-        this.angle++
+        this.effect_angle++
     }
 
-    //エネミーの描画
-    display(){
+    /**
+     * 位置を更新する
+     */
+    move(){
+        //位置の更新
+        this.location.add(this.velocity)
+    }
+
+    /**
+     * エネミーを描画する
+     */
+    drawEnemy(){
         noStroke()
         fill(255, 0, 85)
         beginShape()
@@ -350,12 +439,14 @@ class Enemy {
         strokeWeight(1)
         beginShape()
         for(var i=0; i<5; i++){
-            vertex(this.location.x+sin(i*1.2566 + this.angle/50)*23 + 5, this.location.y+cos(i*1.2566 + this.angle/50)*23)
+            vertex(this.location.x+sin(i*1.2566 + this.effect_angle/50)*23 + 5, this.location.y+cos(i*1.2566 + this.effect_angle/50)*23)
         }
         endShape(CLOSE)
     }
 
-    //攻撃の追加
+    /**
+     * 攻撃を作成して配列に追加する
+     */
     addAttack(){
         if(millis() - this.attack_time > 0){
         const attack = new EnemyAttack(this.location.x, this.location.y)
@@ -364,16 +455,18 @@ class Enemy {
         }
     }
 
-    //攻撃の描画
-    displayAttack(){
+    /**
+     * 攻撃を描画する
+     */
+    drawAttack(){
         for(var i=0; i<this.attack_list.length; i++){
-            this.attack_list[i].move()
-            this.attack_list[i].display()
-            this.attack_list[i].collision()
+            this.attack_list[i].draw()
         }
     }
 
-    //撃ち落されたときの処理
+    /**
+     * プレイヤーの弾丸に当たると撃ち落される
+     */
     drop(){
         for(var i=0; i<player.attack_list.length; i++){
             if(dist(this.location.x, this.location.y, player.attack_list[i].location.x, player.attack_list[i].location.y) < 15){
@@ -384,25 +477,43 @@ class Enemy {
         }
     }
 
-    //プレイヤーとの接触
+    /**
+     * プレイヤーにダメージを与える
+     */
     collision(){
-        if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 40 && (millis() - player.interval >= 700)){
+        if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 40 ){
             this.location.x = -50
-            player.damage(30)
+            info.damage(30)
         }
     }
 }
 
-//エネミーリストクラス
+/**
+ * 全エネミーを管理する
+ * @param {number} enemy_num エネミーの数
+ * @param {Array} enemy_list エネミーのリスト
+ * @param {number} counter エネミーを作成するまでの時間
+ */
 class EnemyList{
-    //エネミー全体の管理
     constructor(){
         this.enemy_num = 0
         this.enemy_list = []
-        this.counter = 0
+        this.counter = 100
     }
 
-    //エネミーの追加
+    draw(){
+        this.counter--
+        if(this.counter <= 0){
+            this.addEnemy()
+            this.counter = int(random(30, info.level == 1 ? 60 : info.level == 2 ? 50 : 30))
+        }
+
+        this.drawEnemyList()
+    }
+
+    /**
+     * エネミーを配列に追加する
+     */
     addEnemy(){
         const enemy = new Enemy()
         if(this.enemy_list.length < 20){
@@ -416,17 +527,111 @@ class EnemyList{
             this.enemy_num = 0
     }
 
-    //エネミー全体の描画
-    displayEnemy(){
-        this.counter--
-        if(this.counter <= 0){
-            this.addEnemy()
-            this.counter = int(random(30, info.level == 1 ? 60 : info.level == 2 ? 50 : 30))
-        }
-        
+    /**
+     * 全エネミーを描画する
+     */
+    drawEnemyList(){  
         for(var i=0; i<this.enemy_list.length; i++){
-            this.enemy_list[i].move()
-            this.enemy_list[i].display()
+            this.enemy_list[i].draw()
+        }
+    }
+}
+
+/**
+ * プレイヤーの攻撃の情報を保持する
+ * @param {number} location 位置
+ * @param {number} velocity 速度
+ */
+class PlayerAttack {
+    constructor(x, y){
+        this.location = createVector(x, y)
+        this.velocity = createVector(4, 0)
+    }
+
+    /**
+     * drawで行う処理
+     */
+    draw(){
+        this.move()
+        this.drawAttack()
+    }
+
+    /**
+     * 位置を更新する
+     */
+    move(){
+        this.location.add(this.velocity)
+    }
+
+    /**
+     * 攻撃を描画する
+     */
+    drawAttack(){
+        noStroke()
+        rectMode(CENTER)
+        fill(255)
+        rect(this.location.x, this.location.y, 14, 4)
+
+        //攻撃の装飾
+        fill(255, 50)
+        rectMode(CORNER)
+        for(var i=0; i<5; i++){
+            rect(this.location.x-5*i, this.location.y-2, 5*i, 4)
+        }
+    }
+}
+
+/**
+ * エネミーの攻撃の情報を保持する
+ * @param {number} location 位置
+ * @param {number} velocity 速度
+ */
+class EnemyAttack {
+    constructor(x, y){
+        this.velocity = createVector(-8, 0)
+        this.location = createVector(x, y)
+    }
+
+    /**
+     * drawで行う処理
+     */
+    draw(){
+        this.move()
+        this.drawAttack()
+        this.collision()
+    }
+
+    /**
+     * 位置を更新する
+     */
+    move(){
+        this.location.add(this.velocity)
+    }
+
+    /**
+     * 攻撃を描画する
+     */
+    drawAttack(){
+        noStroke()
+        rectMode(CENTER)
+        fill(255, 0, 85)
+        rect(this.location.x, this.location.y, 14, 4)
+
+        //攻撃の装飾
+        fill(255, 0, 85, 30)
+        rectMode(CORNER)
+        for(var i=0; i<5; i++){
+            rect(this.location.x+4, this.location.y-2, 5*i, 4)
+        }
+    }
+
+    /**
+     * プレイヤーにダメージを与える
+     */
+    collision(){
+        if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 20 ){
+            this.location.x = -10
+            info.damage(15)
         }
     }
 }
@@ -435,20 +640,13 @@ class EnemyList{
 //各キーの判定
 var up, down, left, right, space;
 
-//ゲームの状態
-var game_state=0;
-var opacity=0
-
-var player;
-var info;
-
-//初期化
 function setup(){
-    let canvas = createCanvas(1000, 500);
+    createCanvas(1000, 500);
     textFont('Bahnschrift');
+    game_state=0;
+    opacity=0
 }
 
-//描画
 function draw(){
     background(0);
     fill(255);
@@ -465,73 +663,9 @@ function draw(){
     }
 }
 
-//プレイヤー攻撃クラス
-class PlayerAttack {
-    //位置の定義
-    constructor(x, y){
-        this.location = createVector(x, y)
-        this.velocity = createVector(4, 0)
-    }
-
-    //位置の更新
-    move(){
-        this.location.add(this.velocity)
-    }
-
-    //攻撃の描画
-    display(){
-        noStroke()
-        rectMode(CENTER)
-        fill(255)
-        rect(this.location.x, this.location.y, 14, 4)
-
-        //攻撃の装飾
-        fill(255, 50)
-        rectMode(CORNER)
-        for(var i=0; i<5; i++){
-            rect(this.location.x-5*i, this.location.y-2, 5*i, 4)
-        }
-    }
-}
-
-//エネミー攻撃クラス
-class EnemyAttack {
-    //位置の定義
-    constructor(x, y){
-        this.velocity = createVector(-8, 0)
-        this.location = createVector(x, y)
-    }
-
-    //位置の更新
-    move(){
-        this.location.add(this.velocity)
-    }
-
-    //攻撃の描画
-    display(){
-        noStroke()
-        rectMode(CENTER)
-        fill(255, 0, 85)
-        rect(this.location.x, this.location.y, 14, 4)
-
-        //攻撃の装飾
-        fill(255, 0, 85, 30)
-        rectMode(CORNER)
-        for(var i=0; i<5; i++){
-            rect(this.location.x+4, this.location.y-2, 5*i, 4)
-        }
-    }
-
-    //衝突
-    collision(){
-        if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 20 && (millis() - player.interval >= 700)){
-            this.location.x = -10
-            player.damage(15)
-        }
-    }
-}
-
-//タイトル画面を描画する関数
+/**
+ * タイトル画面を描画する
+ */
 function drawTitle() {
     background(0);
     noStroke()
@@ -554,24 +688,26 @@ function drawTitle() {
         if(right||left||up||down){
             game_state = 1;
             player = new Player()
-            draw_enemy = new EnemyList() 
+            enemy_list = new EnemyList() 
             info = new Information()
             opacity = 0
         }
     }
 }
 
-//ゲーム画面を描画する関数
+/**
+ * ゲーム画面を描画する
+ */
 function drawGame() {
     background(0);
-    draw_enemy.displayEnemy()
-    player.move()
-    player.display()
-    player.displayEffect()
-    info.display()
+    enemy_list.draw()
+    player.draw()
+    info.draw()
 }
 
-//スコア画面を描画する関数
+/**
+ * スコア画面を描画する
+ */
 function drawScore(){
     background(0);
     noStroke()
@@ -598,6 +734,11 @@ function drawScore(){
     }
 }
 
+/**
+ * 矢印キーを描画する
+ * @param {number} x 
+ * @param {number} y 
+ */
 function drawArrowKey(x, y){
     stroke(255)
     strokeWeight(1)
@@ -635,6 +776,11 @@ function drawArrowKey(x, y){
     text('move with arrow keys', x, y+75)
 }
 
+/**
+ * スペースバーを描画する
+ * @param {number} x 
+ * @param {number} y 
+ */
 function drawSpaceKey(x, y){
     stroke(255)
     strokeWeight(1)
@@ -649,6 +795,9 @@ function drawSpaceKey(x, y){
     text('shoot with space bar', x, y+50)
 }
 
+/**
+ * キーが押されたかを判定する
+ */
 function keyPressed() {
     if(keyCode == LEFT_ARROW) left = true;
     if(keyCode == RIGHT_ARROW) right = true;
@@ -657,6 +806,9 @@ function keyPressed() {
     if(key == ' ') space = true;
 }
 
+/**
+ * キーが離されたかを判定する
+ */
 function keyReleased(){
     if(keyCode == LEFT_ARROW) left = false;
     if(keyCode == RIGHT_ARROW) right = false;
