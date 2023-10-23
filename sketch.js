@@ -332,10 +332,10 @@ class Effect {
     constructor(x, y){
         /** @param {Vector} location 位置 */
         this.location = createVector(x, y)
-        /** @param {Vector} velocity 速度 */
-        this.velocity = createVector(cos(this.angle)*2-5, sin(this.angle)*2)
         /** @param {number} angle 角度 */
         this.angle = random(0, 6.28)
+        /** @param {Vector} velocity 速度 */
+        this.velocity = createVector(cos(this.angle)*2-5, sin(this.angle)*2)
         /** @param {number} opacity 透明度 */
         this.opacity = 150
     }
