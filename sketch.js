@@ -12,7 +12,7 @@ class Information {
         this.interval_time = -1000
     }
 
-    /** drawで行う処理/
+    /** drawで行う処理*/
     draw(){
         this.update()
         this.drawHp()
