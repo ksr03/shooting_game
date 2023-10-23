@@ -420,18 +420,18 @@ class Enemy {
      */
     drawEnemy(){
         noStroke()
-        fill(255, 0, 85)
+        fill(20, 255, 255)
         beginShape()
-            vertex(this.location.x-15,this.location.y)
-            vertex(this.location.x+15,this.location.y-15)
-            vertex(this.location.x+15,this.location.y+15)
+        for(var i=0; i<3; i++){
+            vertex(this.location.x+sin(i*2.09439+4.712388)*15, this.location.y+cos(i*2.09439+4.712388)*15)
+        }
         endShape(CLOSE)
 
         //エネミーの装飾
-        fill(255, 0, 85, 30)
+        fill(20, 255, 255, 15)
         rectMode(CORNER)
         for(var i=0; i<5; i++){
-            rect(this.location.x+15, this.location.y-15, 7*i, 30)
+            rect(this.location.x+7.5, this.location.y-13, 7*i, 26)
         }
 
         noFill()
@@ -439,7 +439,7 @@ class Enemy {
         strokeWeight(1)
         beginShape()
         for(var i=0; i<5; i++){
-            vertex(this.location.x+sin(i*1.2566 + this.effect_angle/50)*23 + 5, this.location.y+cos(i*1.2566 + this.effect_angle/50)*23)
+            vertex(this.location.x+sin(i*1.2566 + this.effect_angle/50)*20, this.location.y+cos(i*1.2566 + this.effect_angle/50)*20)
         }
         endShape(CLOSE)
     }
@@ -481,7 +481,7 @@ class Enemy {
      * プレイヤーにダメージを与える
      */
     collision(){
-        if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 40 ){
+        if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 35 ){
             this.location.x = -50
             info.damage(30)
         }
@@ -614,11 +614,11 @@ class EnemyAttack {
     drawAttack(){
         noStroke()
         rectMode(CENTER)
-        fill(255, 0, 85)
+        fill(20, 255, 255)
         rect(this.location.x, this.location.y, 14, 4)
 
         //攻撃の装飾
-        fill(255, 0, 85, 30)
+        fill(20, 255, 255, 30)
         rectMode(CORNER)
         for(var i=0; i<5; i++){
             rect(this.location.x+4, this.location.y-2, 5*i, 4)
@@ -636,6 +636,64 @@ class EnemyAttack {
     }
 }
 
+/**
+ * 背景の山々を描画する
+ * @param {number} division 画面幅の分割数
+ * @param {number} speed 背景の移動速度
+ * @param {number} height 山々の高さ
+ * @param {number} colorSet 山々の色
+ */
+class Background {
+    constructor(division, speed, height, colorSet){
+      this.displacement = 0
+      this.speed = speed
+      this.division = division
+      this.colorSet = colorSet
+      this.height = height
+      this.bg = []
+      for(var i=0; i<100; i++){
+        this.bg.push(noise(i*random(0, 0.3))*50)    
+      }
+    }
+    
+    /**
+     * drawで行う処理
+     */
+    draw(){
+      this.drawBackground()
+      this.update()
+    }
+    
+    /**
+     * 配列と変位を更新する
+     */
+    update(){
+      this.displacement -= this.speed
+      
+      if(this.displacement <= -1000/this.division){
+        var x = this.bg[0]
+        this.bg.shift()
+        this.bg.push(x)
+        this.displacement=0
+      }
+    }
+    
+    /**
+     * 山々を描画する
+     */
+    drawBackground(){
+      noStroke()
+      fill(this.colorSet[0], this.colorSet[1], this.colorSet[2])
+      beginShape()
+      vertex(1000, 500)
+      vertex(0, 500)
+      for(var i=0; i<this.division+5; i++){
+        vertex(i*(1000/this.division)+this.displacement, this.bg[i]+this.height) 
+      }
+      endShape(CLOSE)
+    }
+  }
+
 
 //各キーの判定
 var up, down, left, right, space;
@@ -645,6 +703,9 @@ function setup(){
     textFont('Bahnschrift');
     game_state=0;
     opacity=0
+    bg_1 = new Background(50, 0.3, 300, [12, 45, 79])
+    bg_2 = new Background(40, 0.5, 330, [4, 29, 56])
+    bg_3 = new Background(30, 1, 350, [0, 10, 27])
 }
 
 function draw(){
@@ -667,13 +728,13 @@ function draw(){
  * タイトル画面を描画する
  */
 function drawTitle() {
-    background(0);
+    background(33, 73, 104);
     noStroke()
     fill(255)
     textAlign(CENTER);
     textSize(50);
     text('LONG FLIGHT', 500, 230);
-    fill(255, 200, 200, opacity)
+    fill(255, opacity)
     textSize(30)
     text("Press the arrow key to start.", 500, 270)
     drawArrowKey(380, 370)
@@ -699,7 +760,10 @@ function drawTitle() {
  * ゲーム画面を描画する
  */
 function drawGame() {
-    background(0);
+    background(33, 73, 104);
+    bg_1.draw()
+    bg_2.draw()
+    bg_3.draw()
     enemy_list.draw()
     player.draw()
     info.draw()
@@ -709,14 +773,14 @@ function drawGame() {
  * スコア画面を描画する
  */
 function drawScore(){
-    background(0);
+    background(33, 73, 104);
     noStroke()
     textAlign(CENTER);
     fill(255)
     textSize(40);
     text('Your score is', 500, 150);
     textSize(80)
-    fill(255, 200, 200)
+    fill(255)
     text(int(info.score), 500, 250)
     textSize(45)
     fill(255, opacity)
