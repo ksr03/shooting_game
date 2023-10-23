@@ -12,9 +12,7 @@ class Information {
         this.interval_time = -1000
     }
 
-    /**
-     * drawで行う処理
-     */
+    /** drawで行う処理/
     draw(){
         this.update()
         this.drawHp()
@@ -23,9 +21,7 @@ class Information {
         this.drawRounds()
     }
 
-    /**
-     * レベル/スコアの更新を行う
-     */
+    /** レベル/スコアの更新を行う*/
     update(){
         this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
 
@@ -40,9 +36,7 @@ class Information {
         }
     }
     
-    /**
-     * 体力を表示する
-     */
+    /** 体力を表示する*/
     drawHp(){
         textAlign(LEFT)
         fill(255)
@@ -58,9 +52,7 @@ class Information {
         rect(100, 17, 200, 10)
     }
 
-    /**
-     * スコアを表示する
-     */
+    /** スコアを表示する*/
     drawScore(){
         textAlign(LEFT)
         fill(255)
@@ -78,9 +70,7 @@ class Information {
         }
     }
 
-    /**
-     * レベルを表示する
-     */
+    /** レベルを表示する*/
     drawLevel(){
         fill(255)
         noStroke()
@@ -96,9 +86,7 @@ class Information {
         text(this.level, 110, 110)
     }
 
-    /**
-     * 残弾を表示する
-     */
+    /** 残弾を表示する*/
     drawRounds(){
         //残段数チャージの表示
         textAlign(CENTER)
@@ -174,9 +162,7 @@ class Player {
         this.effect_list = []
     }
 
-    /**
-     * drawで行う処理
-     */
+    /** drawで行う処理*/
     draw(){
         this.move()
         this.drawPlayer()
@@ -192,9 +178,7 @@ class Player {
         this.updateCharge()
     }
 
-    /**
-     * 位置を更新する
-     */
+    /** 位置を更新する*/
     move(){
         //加速度の更新
         if(right) this.accel.x += 0.3
@@ -216,9 +200,7 @@ class Player {
         if(this.location.y > 485) this.location.y = 485        
     }
 
-    /**
-     * プレイヤーを描画する
-     */
+    /** プレイヤーを描画する*/
     drawPlayer(){
         //プレイヤー本体
         rectMode(CENTER)
@@ -251,9 +233,7 @@ class Player {
         }
     }
 
-    /**
-     * エフェクトを作成して配列に追加する
-     */
+    /** エフェクトを作成して配列に追加する*/
     addEffect(){
         const effect = new Effect(this.location.x, this.location.y)
         if(this.effect_list.length < 50){
@@ -266,18 +246,14 @@ class Player {
             this.effect_num = 0
     }
 
-    /**
-     * エフェクトの移動と描画を行う
-     */
+    /** エフェクトの移動と描画を行う*/
     drawEffect(){
         for(var i=0; i<this.effect_list.length; i++){
             this.effect_list[i].draw()
         }
     }
 
-    /**
-     * 攻撃を作成して配列に追加する
-     */
+    /** 攻撃を作成して配列に追加する*/
     addAttack(){
         if(this.attack_num > 0 && (millis() - this.attack_interval) > 200){
             const attack = new PlayerAttack(this.location.x, this.location.y)
@@ -291,18 +267,14 @@ class Player {
         }
     }
 
-    /**
-     * 攻撃を描画する
-     */
+    /** 攻撃を描画する*/
     drawAttack(){
         for(var i=0; i<this.attack_list.length; i++){
             this.attack_list[i].draw()
         }
     }
 
-    /**
-     * チャージ率を更新する
-     */
+    /** チャージ率を更新する*/
     updateCharge(){
         if(this.attack_charge < 1){
             this.attack_charge += 0.0025
