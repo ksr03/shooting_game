@@ -2,6 +2,8 @@
 class Information {
     /** コンストラクタ*/
     constructor(){
+        /** @param {number} start_time ゲーム開始時間 */
+        this.start_time = millis()
         /** @param {number} hp 体力 */
         this.hp = 100
         /** @param {number} score スコア */
@@ -23,7 +25,11 @@ class Information {
 
     /** レベル/スコアの更新を行う*/
     update(){
-        this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
+        if(millis() - this.start_time >= 3000){
+            this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
+        }else{
+            this.drawCount()
+        }
 
         if(this.hp <= 0){
             game_state = 2
@@ -48,6 +54,7 @@ class Information {
         noStroke()
         rect(100, 17, this.hp*2, 10)
         noFill()
+        strokeWeight(1)
         stroke(255)
         rect(100, 17, 200, 10)
     }
@@ -120,6 +127,24 @@ class Information {
             rect(127+12*i, 455, 10, 30)
         }
 
+    }
+
+    /** カウントを表示する */
+    drawCount(){
+        var count = millis() - this.start_time
+        textAlign(CENTER)
+        fill(255)
+        noStroke()
+        textSize(50)
+        text(3 - int(count/1000), 500, 248);
+
+        noFill()
+        stroke(255)
+        strokeWeight(1)
+        ellipseMode(CENTER)
+
+        strokeWeight(5)
+        arc(500, 230, 90, 90, -1.570796, count/1000 * 6.283184 - 1.570796)
     }
 
     /**
@@ -447,7 +472,7 @@ class EnemyList{
         /** @param {Array} enemy_list エネミーのリスト */
         this.enemy_list = []
         /** @param {number} counter エネミーを作成するまでの時間 */
-        this.counter = 100
+        this.counter = 230
     }
 
     /** draw()で行う処理*/
@@ -638,6 +663,10 @@ class Background {
 
 //各キーの判定
 var up, down, left, right, space;
+var bg_1, bg_2, bg_3
+var game_state
+var opacity
+var player, enemy_list, info
 
 function setup(){
     createCanvas(1000, 500);
