@@ -32,6 +32,7 @@ class Information {
         }
 
         if(this.hp <= 0){
+            scoreClass = new Score()
             game_state = 2
         }
 
@@ -277,7 +278,7 @@ class Player {
 
     /** エフェクトを作成して配列に追加する*/
     addEffect(){
-        const effect = new Effect(this.location.x, this.location.y)
+        const effect = new PlayerEffect(this.location.x, this.location.y)
         if(this.effect_list.length < 50){
             this.effect_list.push(effect)
         }
@@ -370,7 +371,7 @@ class Player {
 }
 
 /** エフェクトの情報を保持する*/
-class Effect {
+class PlayerEffect {
     /** 
      * コンストラクタ
      * @param {number} x x座標
@@ -727,6 +728,76 @@ class Background {
     }
   }
 
+/** スコア表示を行う */
+class Score {
+    constructor(){
+        /** @param {number} counter スコアのカウンタ */
+        this.counter = 0
+        this.opacity = 0
+    }
+
+    draw(){
+        this.update()
+        this.drawScore()
+    }
+
+    drawScore(){
+        background(33, 73, 104);
+        noStroke()
+        textAlign(CENTER);
+        fill(255)
+        textSize(40);
+        text('Your score is', 500, 150);
+
+        textSize(80)
+        fill(255)
+        text(int(this.counter), 500, 250)
+
+        textSize(45)
+        fill(255, this.opacity)
+        text('Thank you for playing!', 500, 330)
+    }
+
+    update(){
+        if(this.counter < info.score){
+            this.counter += info.score / 90
+        }
+        if(this.counter > info.score){
+            this.counter = info.score
+        }
+
+        if(this.counter == info.score && this.opacity <= 255){
+            this.opacity+=3
+        }
+
+        if(this.opacity >= 255){
+            if(right||left||up||down){
+                game_state = 0;
+            }
+        }
+    }
+}
+
+class ScoreEffect {
+    constructor(){
+        this.start_time = millis()
+        this.shape = random(0, 1)
+        this.velocity = createVector(random(-5, 5), random(-5, -1))
+        this.rotate = random(-0.1, 0.1)
+    }
+
+    draw(){
+
+    }
+
+    drawEffect(){
+
+    }
+
+    update(){
+
+    }
+}
 
 //各キーの判定
 var up, down, left, right, space;
@@ -734,6 +805,7 @@ var bg_1, bg_2, bg_3
 var game_state
 var opacity
 var player, enemy_list, info
+var scoreClass
 
 function setup(){
     createCanvas(1000, 500);
@@ -756,7 +828,7 @@ function draw(){
             drawGame();
             break;
         case 2:
-            drawScore()
+            scoreClass.draw()
             break;
     }
 }
