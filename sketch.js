@@ -48,7 +48,7 @@ class Information {
         fill(255)
         noStroke()
         textSize(25)
-        text('HP:'+this.hp, 15, 30)
+        text('HP:'+Math.max(0, this.hp), 15, 30)
         rectMode(CORNER)
         fill(255, 180)
         noStroke()
@@ -185,10 +185,16 @@ class Player {
         this.effect_num = 0
         /** @param {number} effect_list エフェクトクラスのリスト  */
         this.effect_list = []
+
+        /** @param {number} angle 角度/向き */
+        this.angle = 0
+        /** @param {number} target_no ターゲットのエネミーの番号 */
+        this.target_no = -1
     }
 
     /** drawで行う処理*/
     draw(){
+        this.setTarget()
         this.move()
         this.drawPlayer()
         this.addEffect()
@@ -238,15 +244,17 @@ class Player {
             fill(250, 255, 80, 130)
         rect(this.location.x, this.location.y, 30, 30)
 
-        //プレイヤーの装飾
+        //射線
         noFill()
         stroke(255)
         strokeWeight(2)
         ellipseMode(CENTER)
-        arc(this.location.x, this.location.y, 60, 60, 0.4, 5.883184)
+        arc(this.location.x, this.location.y, 60, 60, 0.4+this.angle, 5.883184+this.angle)
         strokeWeight(1)
         for(var i=0; i<100; i++){
-            line(this.location.x+i*10, this.location.y, this.location.x+i*10+5, this.location.y)
+            var x = this.location.x
+            var y = this.location.y
+            line(x+(i*10), y+(i*10)*sin(this.angle), x+(i*10+5), y+(i*10+5)*sin(this.angle))
         }
 
         //グロー
@@ -256,6 +264,15 @@ class Player {
         for(var i=0; i<20; i++){
             ellipse(this.location.x, this.location.y, 15+7*i, 15+7*i)
         }
+
+        //攻撃範囲(20°)
+        fill(255, 30)
+        noStroke()
+        beginShape()
+            vertex(this.location.x, this.location.y)
+            vertex(this.location.x+1000, this.location.y+176.3)
+            vertex(this.location.x+1000, this.location.y-176.3)
+        endShape(CLOSE)
     }
 
     /** エフェクトを作成して配列に追加する*/
@@ -281,7 +298,7 @@ class Player {
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
         if(this.attack_num > 0 && (millis() - this.attack_interval) > 200){
-            const attack = new PlayerAttack(this.location.x, this.location.y)
+            const attack = new PlayerAttack(this.location.x, this.location.y, this.angle)
             this.attack_list.push(attack)
             this.attack_num--
 
@@ -315,6 +332,39 @@ class Player {
             } else if(this.attack_num == 9){
                 this.attack_num++
             }
+        }
+    }
+
+    /** ターゲットを指定する */
+    setTarget(){
+        //初期化
+        for(var i=0; i<enemy_list.enemy_list.length; i++){
+            enemy_list.enemy_list[i].isTarget = false
+        }
+        this.target_no = -1
+        this.angle = 0
+
+        /** @param {number} min_distance 最も近い敵との距離 */
+        var min_distance = 10000
+        /** @param {Vector} location 敵の位置 */
+        var location
+        /** @param {number} distance 敵との距離 */
+        var distance
+
+        for(var i=0; i<enemy_list.enemy_list.length; i++){
+            location = createVector(enemy_list.enemy_list[i].location.x, enemy_list.enemy_list[i].location.y)
+            if(location.x <= this.location.x || 1000 <= location.x || Math.abs((this.location.y - location.y)/(this.location.x - location.x)) > 0.1745)
+                continue
+
+            distance = dist(this.location.x, this.location.y, location.x, location.y)
+            if(distance < min_distance){
+                this.target_no = i
+                min_distance = distance
+            }
+        }
+        if(this.target_no != -1){
+            enemy_list.enemy_list[this.target_no].isTarget = true
+            this.angle = (enemy_list.enemy_list[this.target_no].location.y - this.location.y)/(enemy_list.enemy_list[this.target_no].location.x - this.location.x)
         }
     }
 }
@@ -374,6 +424,8 @@ class Enemy {
         this.attack_time = 0
         /** @param {number} effect_angle エフェクトの角度 */
         this.effect_angle = 0
+        /** @param {boolean} isTarget 標的にされているか */
+        this.isTarget = false
     }
 
     /** drawで行う処理*/
@@ -410,16 +462,31 @@ class Enemy {
         }
         endShape(CLOSE)
 
-        //エネミーの装飾
+        //ブラー
         fill(20, 255, 255, 15)
         rectMode(CORNER)
         for(var i=0; i<5; i++){
             rect(this.location.x+7.5, this.location.y-13, 7*i, 26)
         }
 
+        //五角形
         noFill()
-        stroke(255)
-        strokeWeight(1)
+        if(this.isTarget){
+            stroke(255, 10)
+            for(var i=0; i<5; i++){
+                strokeWeight(i*3)
+                beginShape()
+                for(var j=0; j<5; j++){
+                    vertex(this.location.x+sin(j*1.2566 + this.effect_angle/50)*20, this.location.y+cos(j*1.2566 + this.effect_angle/50)*20)
+                }
+                endShape(CLOSE)
+            }
+            stroke(210, 250, 255)
+            strokeWeight(3)
+        } else {
+            stroke(255)
+            strokeWeight(1)
+        }
         beginShape()
         for(var i=0; i<5; i++){
             vertex(this.location.x+sin(i*1.2566 + this.effect_angle/50)*20, this.location.y+cos(i*1.2566 + this.effect_angle/50)*20)
@@ -489,14 +556,14 @@ class EnemyList{
     /** エネミーを配列に追加する*/
     addEnemy(){
         const enemy = new Enemy()
-        if(this.enemy_list.length < 20){
+        if(this.enemy_list.length < 15){
             this.enemy_list.push(enemy)
         }
         else{
-            this.enemy_list[this.enemy_num % 20] = enemy
+            this.enemy_list[this.enemy_num % 15] = enemy
         }
         this.enemy_num++
-        if(this.enemy_num >= 20)
+        if(this.enemy_num >= 15)
             this.enemy_num = 0
     }
 
@@ -514,12 +581,13 @@ class PlayerAttack {
      * コンストラクタ
      * @param {number} x x座標
      * @param {number} y y座標
+     * @param {number} angle 角度
      */
-    constructor(x, y){
+    constructor(x, y, angle){
         /** @param {number} location 位置 */
         this.location = createVector(x, y)
         /** @param {number} velocity 速度 */
-        this.velocity = createVector(4, 0)
+        this.velocity = createVector(4, 7*sin(angle))
     }
 
     /** drawで行う処理*/
@@ -542,13 +610,12 @@ class PlayerAttack {
         noStroke()
         rectMode(CENTER)
         fill(255)
-        rect(this.location.x, this.location.y, 14, 4)
+        ellipse(this.location.x, this.location.y, 5, 5)
 
         //攻撃の装飾
-        fill(255, 50)
-        rectMode(CORNER)
-        for(var i=0; i<5; i++){
-            rect(this.location.x-5*i, this.location.y-2, 5*i, 4)
+        ellipseMode(CENTER)
+        for(var i=0; i<8; i++){
+            ellipse(this.location.x-this.velocity.x*i/2, this.location.y-this.velocity.y*i/2, 5, 5)
         }
     }
 }
