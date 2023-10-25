@@ -730,19 +730,26 @@ class Background {
 
 /** スコア表示を行う */
 class Score {
+    /** コンストラクタ */
     constructor(){
-        /** @param {number} counter スコアのカウンタ */
-        this.counter = 0
-        this.opacity = 0
+        /** @param {number} score_counter スコアのカウンタ */
+        this.score_counter = 0
+        /** @param {number} time_counter 時間のカウンタ */
+        this.time_counter = 0
+        /** @param {Array} effect_list エフェクトを保持する配列 */
+        this.effect_list = []
     }
 
+    /** draw()で行う処理 */
     draw(){
+        background(33, 73, 104);
+        this.drawEffect()
         this.update()
         this.drawScore()
     }
 
+    /** スコアを描画する */
     drawScore(){
-        background(33, 73, 104);
         noStroke()
         textAlign(CENTER);
         fill(255)
@@ -751,51 +758,107 @@ class Score {
 
         textSize(80)
         fill(255)
-        text(int(this.counter), 500, 250)
+        text(int(this.score_counter), 500, 250)
 
         textSize(45)
-        fill(255, this.opacity)
+        fill(255, this.time_counter)
         text('Thank you for playing!', 500, 330)
     }
 
+    /** メンバ変数を更新する */
     update(){
-        if(this.counter < info.score){
-            this.counter += info.score / 90
-        }
-        if(this.counter > info.score){
-            this.counter = info.score
+        if(this.score_counter < info.score){
+            this.score_counter += info.score / 90
+            this.score_counter = Math.min(this.score_counter, info.score)
         }
 
-        if(this.counter == info.score && this.opacity <= 255){
-            this.opacity+=3
+        if(this.score_counter == info.score && this.time_counter <= 255){
+            this.time_counter+=3
         }
 
-        if(this.opacity >= 255){
+        if(this.time_counter >= 255){
             if(right||left||up||down){
                 game_state = 0;
             }
         }
     }
+
+    /** エフェクトの移動と描画を行う*/
+    drawEffect(){
+        if(this.score_counter == info.score && this.effect_list.length == 0){
+            for(var i=0; i<50; i++){
+                this.effect_list.push(new ScoreEffect(500, 250))
+            }
+        }
+        for(var i=0; i<this.effect_list.length; i++){
+            this.effect_list[i].draw()
+        }
+    }
 }
 
+/** エフェクトの情報を保持する */
 class ScoreEffect {
-    constructor(){
-        this.start_time = millis()
-        this.shape = random(0, 1)
-        this.velocity = createVector(random(-5, 5), random(-5, -1))
-        this.rotate = random(-0.1, 0.1)
+    /** 
+     * コンストラクタ
+     * @param {number} x x座標
+     * @param {number} y y座標 
+     */
+    constructor(x, y){
+        /** @param {Vector} location 位置 */
+        this.location = createVector(x, y)
+        /** @param {Vector} velocity 速度 */
+        this.velocity = createVector(random(-20, 20), random(-10, 3))
+      
+        /** @param {number} shape 形 */
+        this.shape = int(random(0, 2))
+        /** @param {number} size 大きさ */
+        this.size = random(5, 10)
+        /** @param {number} color 色 */
+        this.color = int(random(20, 255))
+      
+        /** @param {number} angle 角度 */
+        this.angle = 0
+        /** @param {number} angular_velocity 角速度 */
+        this.angular_velocity = random(-0.1, 0.1)
+      
+        /** @param {number} opacity 透明度 */
+        this.opacity = random(250, 400)
     }
 
+    /** draw()で行う処理 */
     draw(){
-
+        this.update()
+        this.drawEffect()
     }
 
+    /** エフェクトを描画する */
     drawEffect(){
-
+        noFill()
+        stroke(this.color, 255, 255, this.opacity)
+        strokeWeight(2)
+        if(this.shape == 0){
+            ellipseMode(CENTER)
+            ellipse(this.location.x, this.location.y, this.size, this.size)
+            
+        }else{
+            beginShape();
+            for(var i=0; i<3; i++){
+            vertex(this.location.x+cos(this.angle+i*2.0944)*this.size, this.location.y+sin(this.angle+i*2.0944)*this.size)
+            }
+            endShape(CLOSE);
+        }
     }
 
+    /** 情報を更新する */
     update(){
+        this.location.add(this.velocity)
+        this.velocity.x /= 1.05
+        this.velocity.y /= 1.05
+        this.velocity.y += 0.02
 
+        this.angle += this.angular_velocity
+
+        this.opacity -= 1.5
     }
 }
 
