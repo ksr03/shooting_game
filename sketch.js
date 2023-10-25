@@ -937,33 +937,6 @@ function drawGame() {
     info.draw()
 }
 
-/** スコア画面を描画する*/
-function drawScore(){
-    background(33, 73, 104);
-    noStroke()
-    textAlign(CENTER);
-    fill(255)
-    textSize(40);
-    text('Your score is', 500, 150);
-    textSize(80)
-    fill(255)
-    text(int(info.score), 500, 250)
-    textSize(45)
-    fill(255, opacity)
-    text('Thank you for playing!', 500, 330)
-
-    if(opacity <= 255){
-        opacity+=3
-    }
-
-    if(opacity >= 255){
-        if(right||left||up||down){
-            game_state = 0;
-            opacity = 0
-        }
-    }
-}
-
 /**
  * 矢印キーを描画する
  * @param {number} x 
