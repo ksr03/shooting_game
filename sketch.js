@@ -525,7 +525,6 @@ class Enemy {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 35 ){
-            this.location.x = -50
             info.damage(30)
         }
     }
@@ -663,7 +662,6 @@ class EnemyAttack {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 20 ){
-            this.location.x = -10
             info.damage(15)
         }
     }
