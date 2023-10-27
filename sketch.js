@@ -150,11 +150,12 @@ class Information {
 
     /**
      * 体力を減らす
-     * @param {number} x ダメージ数
+     * @param {number} damage ダメージ数
      */
-    damage(x){
-        if(millis() - this.interval_time >= 700){
-            this.hp -= x
+    damage(damage, location){
+        if(millis() - this.interval_time >= 1500){
+            this.hp -= damage
+            player.velocity = createVector((player.location.x - location.x)/4, (player.location.y - location.y)/4)
             this.interval_time = millis()
         }
     }
@@ -237,7 +238,7 @@ class Player {
         //プレイヤー本体
         rectMode(CENTER)
         noStroke()
-        if(millis() - info.interval_time >= 700)
+        if(millis() - info.interval_time >= 1500)
             fill(255)
         else if(int(millis()/130) % 2 == 0){
             fill(250, 255, 80, 230)
@@ -247,9 +248,14 @@ class Player {
 
         //射線
         noFill()
-        stroke(255)
         strokeWeight(2)
         ellipseMode(CENTER)
+        if(millis() - info.interval_time >= 1500)
+            stroke(255)
+        else if(int(millis()/130) % 2 == 0){
+            stroke(250, 255, 80, 230)
+        } else
+            stroke(250, 255, 80, 130)
         arc(this.location.x, this.location.y, 60, 60, 0.4+this.angle, 5.883184+this.angle)
         strokeWeight(1)
         for(var i=0; i<100; i++){
@@ -525,7 +531,7 @@ class Enemy {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 35 ){
-            info.damage(30)
+            info.damage(30, this.location)
         }
     }
 }
@@ -662,7 +668,7 @@ class EnemyAttack {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 20 ){
-            info.damage(15)
+            info.damage(15, this.location)
         }
     }
 }
