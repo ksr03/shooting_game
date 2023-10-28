@@ -1,5 +1,6 @@
 /** プレイヤーの情報を保持する*/
 class Information {
+
     /** コンストラクタ*/
     constructor(){
         /** @param {number} start_time ゲーム開始時間 */
@@ -12,6 +13,8 @@ class Information {
         this.level = 1
         /** @param {number} interval_time 前回ダメージを受けた時間 */
         this.interval_time = -1000
+        /** @param {number} bonus_score ボーナススコア */
+        this.bonus_score = null
     }
 
     /** drawで行う処理*/
@@ -21,6 +24,9 @@ class Information {
         this.drawScore()
         this.drawLevel()
         this.drawRounds()
+        if(this.bonus_score){
+            this.bonus_score.draw()
+        }
     }
 
     /** レベル/スコアの更新を行う*/
@@ -159,6 +165,12 @@ class Information {
             this.interval_time = millis()
         }
     }
+
+    /** ボーナススコアを追加する */
+    bonus(){
+        this.score += 300
+        this.bonus_score = new RiseText(135 + int(this.score).toString().length * 15, 55, '+300')
+    }
 }
 
 /** プレイヤーの情報を保持する*/
@@ -258,6 +270,7 @@ class Player {
             stroke(250, 255, 80, 130)
         arc(this.location.x, this.location.y, 60, 60, 0.4+this.angle, 5.883184+this.angle)
         strokeWeight(1)
+        stroke(255)
         for(var i=0; i<100; i++){
             var x = this.location.x
             var y = this.location.y
@@ -433,6 +446,8 @@ class Enemy {
         this.effect_angle = 0
         /** @param {boolean} isTarget 標的にされているか */
         this.isTarget = false
+        /** @param {Array} effect_list エフェクトを保持する配列 */
+        this.effect_list = []
     }
 
     /** drawで行う処理*/
@@ -451,6 +466,8 @@ class Enemy {
         this.collision()
 
         this.effect_angle++
+
+        this.drawEffect()
     }
 
     /** 位置を更新する*/
@@ -521,9 +538,12 @@ class Enemy {
     drop(){
         for(var i=0; i<player.attack_list.length; i++){
             if(dist(this.location.x, this.location.y, player.attack_list[i].location.x, player.attack_list[i].location.y) < 15){
+                for(var j=0; j<10; j++){
+                    this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
+                }
                 this.location.x = -50
                 player.attack_list[i].location.x = 1050
-                info.score += 300
+                info.bonus()
             }
         }
     }
@@ -532,6 +552,13 @@ class Enemy {
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 35 ){
             info.damage(30, this.location)
+        }
+    }
+
+    /** エフェクトの移動と描画を行う*/
+    drawEffect(){
+        for(var i=0; i<this.effect_list.length; i++){
+            this.effect_list[i].draw()
         }
     }
 }
@@ -791,7 +818,7 @@ class Score {
     drawEffect(){
         if(this.score_counter == info.score && this.effect_list.length == 0){
             for(var i=0; i<50; i++){
-                this.effect_list.push(new ScoreEffect(500, 250))
+                this.effect_list.push(new ScoreEffect(500, 250, [-20, 20], [-10, 3], [255, 255, random(100, 255)]))
             }
         }
         for(var i=0; i<this.effect_list.length; i++){
@@ -805,20 +832,23 @@ class ScoreEffect {
     /** 
      * コンストラクタ
      * @param {number} x x座標
-     * @param {number} y y座標 
+     * @param {number} y y座標
+     * @param {Array} range_x x方向の範囲
+     * @param {Array} range_y y方向の範囲
+     * @param {Array} color 色
      */
-    constructor(x, y){
+    constructor(x, y, range_x, range_y, color){
         /** @param {Vector} location 位置 */
         this.location = createVector(x, y)
         /** @param {Vector} velocity 速度 */
-        this.velocity = createVector(random(-20, 20), random(-10, 3))
+        this.velocity = createVector(random(range_x[0], range_x[1]), random(range_y[0], range_y[1]))
       
         /** @param {number} shape 形 */
         this.shape = int(random(0, 2))
         /** @param {number} size 大きさ */
         this.size = random(5, 10)
         /** @param {number} color 色 */
-        this.color = int(random(20, 255))
+        this.color = color
       
         /** @param {number} angle 角度 */
         this.angle = 0
@@ -838,7 +868,7 @@ class ScoreEffect {
     /** エフェクトを描画する */
     drawEffect(){
         noFill()
-        stroke(this.color, 255, 255, this.opacity)
+        stroke(this.color[0], this.color[1], this.color[2], this.opacity)
         strokeWeight(2)
         if(this.shape == 0){
             ellipseMode(CENTER)
@@ -863,6 +893,45 @@ class ScoreEffect {
         this.angle += this.angular_velocity
 
         this.opacity -= 1.5
+    }
+}
+
+/** テキストを表示する */
+class RiseText {
+    /**
+     * コンストラクタ
+     * @param {number} x x座標 
+     * @param {number} y y座標
+     * @param {string} text テキスト 
+     */
+    constructor(x, y, text){
+        /** @param {Vector} location 位置 */
+        this.location = createVector(x, y)
+        /** @param {string} text テキスト */
+        this.text = text
+        /** @param {number} opacity 透明度 */
+        this.opacity = 400
+    }
+
+    /** draw()で行う処理 */
+    draw(){
+        this.drawText()
+        this.update()
+
+    }
+
+    /** テキストを描画する */
+    drawText(){
+        noStroke()
+        fill(255, this.opacity)
+        textSize(15)
+        textAlign(LEFT)
+        text(this.text, this.location.x, this.location.y)
+    }
+
+    /** メンバ変数を更新する */
+    update(){
+        this.opacity -= 3
     }
 }
 
