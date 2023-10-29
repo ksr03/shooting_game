@@ -19,6 +19,9 @@ class Information {
 
     /** drawで行う処理*/
     draw(){
+        if(2500 < millis() - this.start_time && millis() - this.start_time < 5500){
+            this.drawCount()
+        }
         this.update()
         this.drawHp()
         this.drawScore()
@@ -31,10 +34,8 @@ class Information {
 
     /** レベル/スコアの更新を行う*/
     update(){
-        if(millis() - this.start_time >= 3000){
+        if(5500 <= millis() - this.start_time){
             this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
-        }else{
-            this.drawCount()
         }
 
         if(this.hp <= 0){
@@ -138,7 +139,7 @@ class Information {
 
     /** カウントを表示する */
     drawCount(){
-        var count = millis() - this.start_time
+        var count = millis() - this.start_time - 2500
         textAlign(CENTER)
         fill(255)
         noStroke()
@@ -572,7 +573,7 @@ class EnemyList{
         /** @param {Array} enemy_list エネミーのリスト */
         this.enemy_list = []
         /** @param {number} counter エネミーを作成するまでの時間 */
-        this.counter = 230
+        this.counter = 380
     }
 
     /** draw()で行う処理*/
@@ -871,18 +872,25 @@ class RiseText {
   class Title {
     /** コンストラクタ */
     constructor(){
+        /** @param {number} opacity 透明度 */
         this.opacity = 0
+        /** @param {boolean} in_transition 遷移中かどうか */
+        this.in_transition = false
     }
 
     /** draw()で行う処理 */
     draw(){
-        this.drawTitle()
         this.update()
         this.transition()
+        if(this.in_transition){
+            this.drawTitle2()
+        }else {
+            this.drawTitle1()
+        }
     }
 
     /** タイトル画面を描画する */
-    drawTitle(){
+    drawTitle1(){
         background(33, 73, 104);
         noStroke()
         fill(255)
@@ -894,6 +902,17 @@ class RiseText {
         text("Press the arrow key to start.", 500, 270)
         this.drawArrowKey(380, 370)
         this.drawSpaceKey(630, 396)
+    }
+
+    drawTitle2(){
+        background(30, this.opacity);
+        noStroke()
+        fill(20, 255, 255, this.opacity)
+        textAlign(CENTER);
+        textSize(50);
+        text('LONG FLIGHT', 500, 230);
+        textSize(30)
+        text("start", 653, 270)
     }
     
     /**
@@ -959,17 +978,32 @@ class RiseText {
 
     /** メンバ変数を更新する */
     update(){
-        if(this.opacity <= 255){
-            this.opacity+=3
+        if(!this.in_transition){
+            if(this.opacity < 255){
+                this.opacity+=3
+            }
+            if(this.opacity >= 255){
+                this.opacity = 450
+            }
+        }else {
+            this.opacity -= 3
         }
     }
 
     /** game_stateの更新を行う */
     transition(){
-        if(this.opacity >= 255){
+        if(!this.in_transition && this.opacity >= 255){
             if(right||left||up||down){
                 gameClass = new Game()
-                game_state = 1;
+                this.in_transition = true
+            }
+        }
+        if(this.in_transition){
+            gameClass.draw();
+            player.location.x = 500
+            player.location.y = 250
+            if(this.opacity == 0){
+                game_state = 1
             }
         }
     }
