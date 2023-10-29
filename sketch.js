@@ -759,6 +759,50 @@ class Background {
     }
   }
 
+class Title {
+    constructor(){
+        this.opacity = 0
+    }
+
+    draw(){
+        this.drawTitle()
+        this.update()
+        this.transition()
+    }
+
+    drawTitle(){
+        background(33, 73, 104);
+        noStroke()
+        fill(255)
+        textAlign(CENTER);
+        textSize(50);
+        text('LONG FLIGHT', 500, 230);
+        fill(255, this.opacity)
+        textSize(30)
+        text("Press the arrow key to start.", 500, 270)
+        drawArrowKey(380, 370)
+        drawSpaceKey(630, 396)
+    }
+
+    update(){
+        if(this.opacity <= 255){
+            this.opacity+=3
+        }
+    }
+
+    /** game_stateの更新を行う */
+    transition(){
+        if(this.opacity >= 255){
+            if(right||left||up||down){
+                game_state = 1;
+                player = new Player()
+                enemy_list = new EnemyList() 
+                info = new Information()
+            }
+        }
+    }
+}
+
 /** スコア表示を行う */
 class Score {
     /** コンストラクタ */
@@ -777,6 +821,7 @@ class Score {
         this.drawEffect()
         this.update()
         this.drawScore()
+        this.transition()
     }
 
     /** スコアを描画する */
@@ -806,12 +851,6 @@ class Score {
         if(this.score_counter == info.score && this.time_counter <= 255){
             this.time_counter+=3
         }
-
-        if(this.time_counter >= 255){
-            if(right||left||up||down){
-                game_state = 0;
-            }
-        }
     }
 
     /** エフェクトの移動と描画を行う*/
@@ -823,6 +862,16 @@ class Score {
         }
         for(var i=0; i<this.effect_list.length; i++){
             this.effect_list[i].draw()
+        }
+    }
+
+    /** game_stateの更新を行う */
+    transition(){
+        if(this.time_counter >= 255){
+            if(right||left||up||down){
+                game_state = 0;
+                titleClass = new Title()
+            }
         }
     }
 }
@@ -939,15 +988,14 @@ class RiseText {
 var up, down, left, right, space;
 var bg_1, bg_2, bg_3
 var game_state
-var opacity
 var player, enemy_list, info
-var scoreClass
+var titleClass, scoreClass
 
 function setup(){
     createCanvas(1000, 500);
     textFont('Bahnschrift');
     game_state=0;
-    opacity=0
+    titleClass = new Title()
     bg_1 = new Background(50, 0.3, 300, [12, 45, 79])
     bg_2 = new Background(40, 0.5, 330, [4, 29, 56])
     bg_3 = new Background(30, 1, 350, [0, 10, 27])
@@ -958,7 +1006,7 @@ function draw(){
     fill(255);
     switch(game_state) {
         case 0:
-            drawTitle();
+            titleClass.draw()
             break;
         case 1:
             drawGame();
@@ -966,36 +1014,6 @@ function draw(){
         case 2:
             scoreClass.draw()
             break;
-    }
-}
-
-/** タイトル画面を描画する*/
-function drawTitle() {
-    background(33, 73, 104);
-    noStroke()
-    fill(255)
-    textAlign(CENTER);
-    textSize(50);
-    text('LONG FLIGHT', 500, 230);
-    fill(255, opacity)
-    textSize(30)
-    text("Press the arrow key to start.", 500, 270)
-    drawArrowKey(380, 370)
-    drawSpaceKey(630, 396)
-
-    if(opacity <= 255){
-        opacity+=3
-    }
-
-    if(opacity >= 255){
-        //ゲームスタート
-        if(right||left||up||down){
-            game_state = 1;
-            player = new Player()
-            enemy_list = new EnemyList() 
-            info = new Information()
-            opacity = 0
-        }
     }
 }
 
