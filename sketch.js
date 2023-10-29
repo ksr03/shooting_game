@@ -759,123 +759,6 @@ class Background {
     }
   }
 
-class Title {
-    constructor(){
-        this.opacity = 0
-    }
-
-    draw(){
-        this.drawTitle()
-        this.update()
-        this.transition()
-    }
-
-    drawTitle(){
-        background(33, 73, 104);
-        noStroke()
-        fill(255)
-        textAlign(CENTER);
-        textSize(50);
-        text('LONG FLIGHT', 500, 230);
-        fill(255, this.opacity)
-        textSize(30)
-        text("Press the arrow key to start.", 500, 270)
-        drawArrowKey(380, 370)
-        drawSpaceKey(630, 396)
-    }
-
-    update(){
-        if(this.opacity <= 255){
-            this.opacity+=3
-        }
-    }
-
-    /** game_stateの更新を行う */
-    transition(){
-        if(this.opacity >= 255){
-            if(right||left||up||down){
-                game_state = 1;
-                player = new Player()
-                enemy_list = new EnemyList() 
-                info = new Information()
-            }
-        }
-    }
-}
-
-/** スコア表示を行う */
-class Score {
-    /** コンストラクタ */
-    constructor(){
-        /** @param {number} score_counter スコアのカウンタ */
-        this.score_counter = 0
-        /** @param {number} time_counter 時間のカウンタ */
-        this.time_counter = 0
-        /** @param {Array} effect_list エフェクトを保持する配列 */
-        this.effect_list = []
-    }
-
-    /** draw()で行う処理 */
-    draw(){
-        background(33, 73, 104);
-        this.drawEffect()
-        this.update()
-        this.drawScore()
-        this.transition()
-    }
-
-    /** スコアを描画する */
-    drawScore(){
-        noStroke()
-        textAlign(CENTER);
-        fill(255)
-        textSize(40);
-        text('Your score is', 500, 150);
-
-        textSize(80)
-        fill(255)
-        text(int(this.score_counter), 500, 250)
-
-        textSize(45)
-        fill(255, this.time_counter)
-        text('Thank you for playing!', 500, 330)
-    }
-
-    /** メンバ変数を更新する */
-    update(){
-        if(this.score_counter < info.score){
-            this.score_counter += info.score / 90
-            this.score_counter = Math.min(this.score_counter, info.score)
-        }
-
-        if(this.score_counter == info.score && this.time_counter <= 255){
-            this.time_counter+=3
-        }
-    }
-
-    /** エフェクトの移動と描画を行う*/
-    drawEffect(){
-        if(this.score_counter == info.score && this.effect_list.length == 0){
-            for(var i=0; i<50; i++){
-                this.effect_list.push(new ScoreEffect(500, 250, [-20, 20], [-10, 3], [255, 255, random(100, 255)]))
-            }
-        }
-        for(var i=0; i<this.effect_list.length; i++){
-            this.effect_list[i].draw()
-        }
-    }
-
-    /** game_stateの更新を行う */
-    transition(){
-        if(this.time_counter >= 255){
-            if(right||left||up||down){
-                game_state = 0;
-                titleClass = new Title()
-            }
-        }
-    }
-}
-
 /** エフェクトの情報を保持する */
 class ScoreEffect {
     /** 
@@ -984,12 +867,212 @@ class RiseText {
     }
 }
 
+  /** タイトル表示を行う */
+  class Title {
+    /** コンストラクタ */
+    constructor(){
+        this.opacity = 0
+    }
+
+    /** draw()で行う処理 */
+    draw(){
+        this.drawTitle()
+        this.update()
+        this.transition()
+    }
+
+    /** タイトル画面を描画する */
+    drawTitle(){
+        background(33, 73, 104);
+        noStroke()
+        fill(255)
+        textAlign(CENTER);
+        textSize(50);
+        text('LONG FLIGHT', 500, 230);
+        fill(255, this.opacity)
+        textSize(30)
+        text("Press the arrow key to start.", 500, 270)
+        this.drawArrowKey(380, 370)
+        this.drawSpaceKey(630, 396)
+    }
+    
+    /**
+     * 矢印キーを描画する
+     * @param {number} x 
+     * @param {number} y 
+     */
+    drawArrowKey(x, y){
+        stroke(255)
+        strokeWeight(1)
+        fill(255, 50)
+        rectMode(CENTER)
+        rect(x, y-20, 40, 40)
+        rect(x, y+30, 40, 40)
+        rect(x-50, y+30, 40, 40)
+        rect(x+50, y+30, 40, 40)
+
+        fill(255)
+        noStroke()
+        beginShape()
+            vertex(x,y-30)
+            vertex(x-10, y-13)
+            vertex(x+10, y-13)
+        endShape(CLOSE)
+        beginShape()
+            vertex(x,y+40)
+            vertex(x-10, y+23)
+            vertex(x+10, y+23)
+        endShape(CLOSE)
+        beginShape()
+            vertex(x-59,y+30)
+            vertex(x-42, y+20)
+            vertex(x-42, y+40)
+        endShape(CLOSE)
+        beginShape()
+            vertex(x+59,y+30)
+            vertex(x+42, y+20)
+            vertex(x+42, y+40)
+        endShape(CLOSE)
+        textSize(20)
+        textAlign(CENTER)
+        text('move with arrow keys', x, y+75)
+    }
+
+    /**
+     * スペースバーを描画する
+     * @param {number} x 
+     * @param {number} y 
+     */
+    drawSpaceKey(x, y){
+        stroke(255)
+        strokeWeight(1)
+        fill(255, 50)
+        rectMode(CENTER)
+        rect(x, y+5, 150, 40)
+        fill(255)
+        noStroke()
+        textSize(20)
+        textAlign(CENTER)
+        text('space bar', x, y+10)
+        text('shoot with space bar', x, y+50)
+    }
+
+    /** メンバ変数を更新する */
+    update(){
+        if(this.opacity <= 255){
+            this.opacity+=3
+        }
+    }
+
+    /** game_stateの更新を行う */
+    transition(){
+        if(this.opacity >= 255){
+            if(right||left||up||down){
+                gameClass = new Game()
+                game_state = 1;
+            }
+        }
+    }
+}
+
+/** ゲーム画面を描画する*/
+class Game {
+    constructor(){
+        player = new Player()
+        enemy_list = new EnemyList() 
+        info = new Information()
+    }
+
+    draw(){
+        background(33, 73, 104);
+        bg_1.draw()
+        bg_2.draw()
+        bg_3.draw()
+        enemy_list.draw()
+        player.draw()
+        info.draw()
+    }
+}
+
+/** スコア表示を行う */
+class Score {
+    /** コンストラクタ */
+    constructor(){
+        /** @param {number} score_counter スコアのカウンタ */
+        this.score_counter = 0
+        /** @param {number} time_counter 時間のカウンタ */
+        this.time_counter = 0
+        /** @param {Array} effect_list エフェクトを保持する配列 */
+        this.effect_list = []
+    }
+
+    /** draw()で行う処理 */
+    draw(){
+        background(33, 73, 104);
+        this.drawEffect()
+        this.update()
+        this.drawScore()
+        this.transition()
+    }
+
+    /** スコアを描画する */
+    drawScore(){
+        noStroke()
+        textAlign(CENTER);
+        fill(255)
+        textSize(40);
+        text('Your score is', 500, 150);
+
+        textSize(80)
+        fill(255)
+        text(int(this.score_counter), 500, 250)
+
+        textSize(45)
+        fill(255, this.time_counter)
+        text('Thank you for playing!', 500, 330)
+    }
+
+    /** メンバ変数を更新する */
+    update(){
+        if(this.score_counter < info.score){
+            this.score_counter += info.score / 90
+            this.score_counter = Math.min(this.score_counter, info.score)
+        }
+
+        if(this.score_counter == info.score && this.time_counter <= 255){
+            this.time_counter+=3
+        }
+    }
+
+    /** エフェクトの移動と描画を行う*/
+    drawEffect(){
+        if(this.score_counter == info.score && this.effect_list.length == 0){
+            for(var i=0; i<50; i++){
+                this.effect_list.push(new ScoreEffect(500, 250, [-20, 20], [-10, 3], [255, 255, random(100, 255)]))
+            }
+        }
+        for(var i=0; i<this.effect_list.length; i++){
+            this.effect_list[i].draw()
+        }
+    }
+
+    /** game_stateの更新を行う */
+    transition(){
+        if(this.time_counter >= 255){
+            if(right||left||up||down){
+                game_state = 0;
+                titleClass = new Title()
+            }
+        }
+    }
+}
+
 //各キーの判定
 var up, down, left, right, space;
 var bg_1, bg_2, bg_3
 var game_state
 var player, enemy_list, info
-var titleClass, scoreClass
+var titleClass, gameClass, scoreClass
 
 function setup(){
     createCanvas(1000, 500);
@@ -1009,84 +1092,12 @@ function draw(){
             titleClass.draw()
             break;
         case 1:
-            drawGame();
+            gameClass.draw();
             break;
         case 2:
             scoreClass.draw()
             break;
     }
-}
-
-/** ゲーム画面を描画する*/
-function drawGame() {
-    background(33, 73, 104);
-    bg_1.draw()
-    bg_2.draw()
-    bg_3.draw()
-    enemy_list.draw()
-    player.draw()
-    info.draw()
-}
-
-/**
- * 矢印キーを描画する
- * @param {number} x 
- * @param {number} y 
- */
-function drawArrowKey(x, y){
-    stroke(255)
-    strokeWeight(1)
-    fill(255, 50)
-    rectMode(CENTER)
-    rect(x, y-20, 40, 40)
-    rect(x, y+30, 40, 40)
-    rect(x-50, y+30, 40, 40)
-    rect(x+50, y+30, 40, 40)
-
-    fill(255)
-    noStroke()
-    beginShape()
-        vertex(x,y-30)
-        vertex(x-10, y-13)
-        vertex(x+10, y-13)
-    endShape(CLOSE)
-    beginShape()
-        vertex(x,y+40)
-        vertex(x-10, y+23)
-        vertex(x+10, y+23)
-    endShape(CLOSE)
-    beginShape()
-        vertex(x-59,y+30)
-        vertex(x-42, y+20)
-        vertex(x-42, y+40)
-    endShape(CLOSE)
-    beginShape()
-        vertex(x+59,y+30)
-        vertex(x+42, y+20)
-        vertex(x+42, y+40)
-    endShape(CLOSE)
-    textSize(20)
-    textAlign(CENTER)
-    text('move with arrow keys', x, y+75)
-}
-
-/**
- * スペースバーを描画する
- * @param {number} x 
- * @param {number} y 
- */
-function drawSpaceKey(x, y){
-    stroke(255)
-    strokeWeight(1)
-    fill(255, 50)
-    rectMode(CENTER)
-    rect(x, y+5, 150, 40)
-    fill(255)
-    noStroke()
-    textSize(20)
-    textAlign(CENTER)
-    text('space bar', x, y+10)
-    text('shoot with space bar', x, y+50)
 }
 
 /** キーが押されたかを判定する*/
