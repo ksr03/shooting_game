@@ -19,6 +19,9 @@ class Information {
 
     /** drawで行う処理*/
     draw(){
+        if(this.hp == 1){
+            this.drawDying()
+        }
         if(2500 < millis() - this.start_time && millis() - this.start_time < 5500){
             this.drawCount()
         }
@@ -176,6 +179,20 @@ class Information {
 
         strokeWeight(5)
         arc(500, 230, 90, 90, -1.570796, count/1000 * 6.283184 - 1.570796)
+    }
+
+    /** 瀕死のときに枠を表示する */
+    drawDying(){
+        noFill()
+        stroke(255, 60, 130, 255)
+        strokeWeight(10)
+        rectMode(CORNER)
+        rect(0, 0, 1000, 500)
+        stroke(255, 60, 130, sin(millis()/300)*25)
+        for(var i=0; i<10; i++){
+            strokeWeight(10+i*2)
+            rect(0, 0, 1000, 500)
+        }
     }
 
     /**
