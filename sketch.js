@@ -904,6 +904,7 @@ class RiseText {
         this.drawSpaceKey(630, 396)
     }
 
+    /** 矢印キーが押された後の画面を描画する */
     drawTitle2(){
         background(30, this.opacity);
         noStroke()
@@ -1011,12 +1012,14 @@ class RiseText {
 
 /** ゲーム画面を描画する*/
 class Game {
+    /** コンストラクタ */
     constructor(){
         player = new Player()
         enemy_list = new EnemyList() 
         info = new Information()
     }
 
+    /** draw()で行う処理 */
     draw(){
         background(33, 73, 104);
         bg_1.draw()
