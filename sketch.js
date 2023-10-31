@@ -6,7 +6,7 @@ class Information {
         /** @param {number} start_time ゲーム開始時間 */
         this.start_time = millis()
         /** @param {number} hp 体力 */
-        this.hp = 100
+        this.hp = 5
         /** @param {number} score スコア */
         this.score = 0
         /** @param {number} level レベル */
@@ -19,6 +19,9 @@ class Information {
 
     /** drawで行う処理*/
     draw(){
+        if(this.hp == 1){
+            this.drawDying()
+        }
         if(2500 < millis() - this.start_time && millis() - this.start_time < 5500){
             this.drawCount()
         }
@@ -56,15 +59,38 @@ class Information {
         fill(255)
         noStroke()
         textSize(25)
-        text('HP:'+Math.max(0, this.hp), 15, 30)
-        rectMode(CORNER)
-        fill(255, 180)
+        text('HP :', 15, 33)
+        for(var i=0; i<5; i++){
+            this.drawHeart(85 + i*37, 25, [60, 60, 60, 255])
+        }
+        for(var i=0; i<this.hp; i++){
+            this.drawHeart(85 + i*37, 25, [255, 60, 130, 255])
+        }
+        var t = millis() - this.interval_time 
+        if(t < 300){
+            this.drawHeart(85 + this.hp*37, 25 + t/15, [255, 60, 130, 300-t])
+        }
+    }
+
+    /**
+     * ハートを描画する
+     * @param {number} x x座標 
+     * @param {number} y y座標
+     * @param {Array} color 色
+     */
+    drawHeart(x, y, color){
+        fill(color[0], color[1], color[2], color[3])
         noStroke()
-        rect(100, 17, this.hp*2, 10)
-        noFill()
-        strokeWeight(1)
-        stroke(255)
-        rect(100, 17, 200, 10)
+        ellipseMode(CENTER)
+        arc(x-7, y-5, 14, 14, 2.3, 0)
+        arc(x+7, y-5, 14, 14, 3.141592, 0.841592)
+        beginShape()
+            vertex(x-12, y-0.3)
+            vertex(x-8, y-5)
+            vertex(x+8, y-5)
+            vertex(x+12, y-0.3)
+            vertex(x, y+13)
+        endShape(CLOSE)
     }
 
     /** スコアを表示する*/
@@ -73,15 +99,15 @@ class Information {
         fill(255)
         noStroke()
         textSize(25)
-        text('SCORE : ', 15, 70);
+        text('SCORE : ', 15, 78);
         textSize(35)
-        text(int(this.score), 115, 70)
+        text(int(this.score), 115, 78)
         for(var i=0; i<5; i++){
             textSize(35)
             noFill()
             stroke(255, 20)
             strokeWeight(i*2)
-            text(int(this.score), 115, 70)
+            text(int(this.score), 115, 78)
         }
     }
 
@@ -90,7 +116,7 @@ class Information {
         fill(255)
         noStroke()
         textSize(25)
-        text('LEVEL : ', 15, 110);
+        text('LEVEL : ', 15, 115);
         if(this.level == 1)
             fill(255)
         else if(this.level == 2)
@@ -98,7 +124,7 @@ class Information {
         else
             fill(255, 90, 90)
         textSize(30)
-        text(this.level, 110, 110)
+        text(this.level, 110, 115)
     }
 
     /** 残弾を表示する*/
@@ -155,13 +181,27 @@ class Information {
         arc(500, 230, 90, 90, -1.570796, count/1000 * 6.283184 - 1.570796)
     }
 
+    /** 瀕死のときに枠を表示する */
+    drawDying(){
+        noFill()
+        stroke(255, 60, 130, 255)
+        strokeWeight(10)
+        rectMode(CORNER)
+        rect(0, 0, 1000, 500)
+        stroke(255, 60, 130, sin(millis()/300)*25)
+        for(var i=0; i<10; i++){
+            strokeWeight(10+i*2)
+            rect(0, 0, 1000, 500)
+        }
+    }
+
     /**
      * 体力を減らす
-     * @param {number} damage ダメージ数
+     * @param {number} location 敵の位置
      */
-    damage(damage, location){
+    damage(location){
         if(millis() - this.interval_time >= 1500){
-            this.hp -= damage
+            this.hp -= 1
             player.velocity = createVector((player.location.x - location.x)/4, (player.location.y - location.y)/4)
             this.interval_time = millis()
         }
@@ -170,7 +210,7 @@ class Information {
     /** ボーナススコアを追加する */
     bonus(){
         this.score += 300
-        this.bonus_score = new RiseText(135 + int(this.score).toString().length * 15, 55, '+300')
+        this.bonus_score = new RiseText(135 + int(this.score).toString().length * 15, 63, '+300')
     }
 }
 
@@ -552,7 +592,7 @@ class Enemy {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 35 ){
-            info.damage(30, this.location)
+            info.damage(this.location)
         }
     }
 
@@ -696,7 +736,7 @@ class EnemyAttack {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 20 ){
-            info.damage(15, this.location)
+            info.damage(this.location)
         }
     }
 }
