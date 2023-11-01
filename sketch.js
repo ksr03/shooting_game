@@ -48,7 +48,7 @@ class Information {
 
         if(this.score >= 3000){
             this.level = 3
-        } else if(this.score >= 1000){
+        } else if(this.score >= 1500){
             this.level = 2
         }
     }
@@ -113,18 +113,48 @@ class Information {
 
     /** レベルを表示する*/
     drawLevel(){
+        //メーターの描画
+        ellipseMode(CENTER)
+        this.drawMeter(61, 140, 85, 3.141592, 4.208789, [255, 163, 196], 1)
+        this.drawMeter(65, 140, 88, 4.238789, 5.185987, [255, 102, 157], 2)
+        this.drawMeter(69, 140, 85, 5.215987, 0, [255, 59, 130], 3)
+
+        //針の描画
+        var s = this.score/4500 * 3.141592 + 3.191592
+        if(6.183184 < s){
+            s = 6.183184
+        }
+        stroke(255)
+        strokeWeight(5)
+        line(65, 140, 65+cos(s)*30, 140+sin(s)*30)
+
         fill(255)
         noStroke()
-        textSize(25)
-        text('LEVEL : ', 15, 115);
-        if(this.level == 1)
-            fill(255)
-        else if(this.level == 2)
-            fill(253, 255, 141)
-        else
-            fill(255, 90, 90)
+        textSize(20)
+        text('LEVEL : ', 22, 170);
         textSize(30)
-        text(this.level, 110, 115)
+        text(this.level, 95, 170)
+    }
+
+    /**
+     * メーターの部品を描画する
+     * @param {number} x 円の中心のx座標 
+     * @param {number} y 円の中心のy座標
+     * @param {number} size 円の大きさ
+     * @param {number} start 弧の始まり
+     * @param {number} stop 弧の終わり
+     * @param {Array} color 色
+     * @param {number} level レベル
+     */
+    drawMeter(x, y, size, start, stop, color, level){
+        if(this.level == level){
+            stroke(255)
+            strokeWeight(3)
+        }else {
+            noStroke()
+        }
+        fill(color[0], color[1], color[2])
+        arc(x, y, size, size, start, stop)
     }
 
     /** 残弾を表示する*/
