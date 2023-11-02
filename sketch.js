@@ -792,6 +792,7 @@ class Background {
       for(var i=0; i<100; i++){
         this.bg.push(noise(i*random(0, 0.3))*50)    
       }
+      this.transition = 0
     }
     
     /** drawで行う処理*/
@@ -815,7 +816,13 @@ class Background {
     /** 山々を描画する*/
     drawBackground(){
       noStroke()
-      fill(this.colorSet[0], this.colorSet[1], this.colorSet[2])
+      if(info.level == 1){
+        fill(this.colorSet[0][0], this.colorSet[0][1], this.colorSet[0][2])
+      }else if(info.level == 2){
+        fill(this.colorSet[1][0], this.colorSet[1][1], this.colorSet[1][2])
+      }else {
+        fill(this.colorSet[2][0], this.colorSet[2][1], this.colorSet[2][2])
+      }
       beginShape()
       vertex(1000, 500)
       vertex(0, 500)
@@ -825,6 +832,32 @@ class Background {
       endShape(CLOSE)
     }
   }
+
+/** 空を描画する */
+class Sky {
+    constructor(){
+        this.image_1 = loadImage('bg1.jpg')
+        this.image_2 = loadImage('bg2.jpg')
+        this.image_3 = loadImage('bg3.jpg')
+    }
+
+    draw(){
+        this.drawSky()
+    }
+
+    drawSky(){
+        if(info.level == 1){
+            background(186, 217, 222);
+            image(this.image_1, 0, 0)
+        }else if(info.level == 2){
+            background(255, 198, 143);
+            image(this.image_2, 0, 0)
+        }else{
+            background(33, 73, 104);
+            image(this.image_3, 0, 0)
+        }
+    }
+}
 
 /** エフェクトの情報を保持する */
 class ScoreEffect {
@@ -935,14 +968,14 @@ class RiseText {
 }
 
   /** タイトル表示を行う */
-  class Title {
+class Title {
     /** コンストラクタ */
     constructor(){
         /** @param {number} opacity 透明度 */
         this.opacity = 0
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
-        this.image = loadImage('img.jpg')
+        this.image = loadImage('title.jpg')
     }
 
     /** draw()で行う処理 */
@@ -1085,6 +1118,7 @@ class Game {
         player = new Player()
         enemy_list = new EnemyList() 
         info = new Information()
+        this.sky = new Sky()
         /** @param {number} end_time ゲーム終了時間 */
         this.end_time = millis()
         /** @param {boolean} in_transition 遷移中かどうか */
@@ -1098,28 +1132,38 @@ class Game {
         this.update()
         //ゲーム終了後の表示
         if(this.in_transition){
-            background(0);
-            if(millis() - this.end_time < 400 ){
-                translate(random(-10, 10), random(-10, 10))
-            }
-            player.drawPlayer()
-            resetMatrix()
-
-            fill(30, 70, 100, this.opacity)
-            rectMode(CORNER)
-            noStroke()
-            rect(0, 0, 1000, 500)
+            this.drawGame2()
         }
         //ゲームプレイ時の表示
         else{
-            background(33, 73, 104);
-            bg_1.draw()
-            bg_2.draw()
-            bg_3.draw()
-            enemy_list.draw()
-            player.draw()
-            info.draw()
+            this.drawGame1()
         }
+    }
+
+    /** ゲームプレイ時の画面を描画する */
+    drawGame1(){
+        this.sky.draw()
+        bg_1.draw()
+        bg_2.draw()
+        bg_3.draw()
+        enemy_list.draw()
+        player.draw()
+        info.draw()
+}
+
+    /** ゲーム終了時の画面を描画する */
+    drawGame2(){
+        background(0);
+        if(millis() - this.end_time < 400 ){
+            translate(random(-10, 10), random(-10, 10))
+        }
+        player.drawPlayer()
+        resetMatrix()
+
+        fill(30, 70, 100, this.opacity)
+        rectMode(CORNER)
+        noStroke()
+        rect(0, 0, 1000, 500)
     }
 
     /** メンバ変数を更新する */
@@ -1226,9 +1270,9 @@ function setup(){
     textFont('Bahnschrift');
     game_state=0;
     titleClass = new Title()
-    bg_1 = new Background(50, 0.3, 300, [12, 45, 79])
-    bg_2 = new Background(40, 0.5, 330, [4, 29, 56])
-    bg_3 = new Background(30, 1, 350, [0, 10, 27])
+    bg_1 = new Background(50, 0.3, 300, [[97, 147, 165], [69, 104, 120], [12, 45, 79]])
+    bg_2 = new Background(40, 0.5, 330, [[86, 130, 146], [39, 76, 97], [4, 29, 56]])
+    bg_3 = new Background(30, 1, 350, [[66, 106, 124], [1, 38, 63], [0, 10, 27]])
 }
 
 function draw(){
