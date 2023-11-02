@@ -1085,12 +1085,13 @@ class Game {
         this.end_time = millis()
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
-        this.opacity = -300
+        this.opacity = -1200
     }
 
     /** draw()で行う処理 */
     draw(){
         this.update()
+        //ゲーム終了後の表示
         if(this.in_transition){
             background(15, 35, 50);
             if(millis() - this.end_time < 400 ){
@@ -1103,7 +1104,9 @@ class Game {
             rectMode(CORNER)
             noStroke()
             rect(0, 0, 1000, 500)
-        }else{
+        }
+        //ゲームプレイ時の表示
+        else{
             background(33, 73, 104);
             bg_1.draw()
             bg_2.draw()
@@ -1120,8 +1123,8 @@ class Game {
             this.end_time = millis()
         }
         if(this.in_transition){
-            this.opacity += 10
-            if(millis() - this.end_time > 1000){
+            this.opacity += 20
+            if(millis() - this.end_time > 1500){
                 scoreClass = new Score()
                 game_state = 2
             }
