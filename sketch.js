@@ -227,7 +227,9 @@ class Information {
         if(millis() - this.interval_time >= 1500){
             this.hp -= 1
             player.velocity = createVector((player.location.x - location.x)/4, (player.location.y - location.y)/4)
-            this.interval_time = millis()
+            if(this.hp != 0){
+                this.interval_time = millis()
+            }
         }
     }
 
@@ -940,6 +942,7 @@ class RiseText {
         this.opacity = 0
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
+        this.image = loadImage('img.jpg')
     }
 
     /** draw()で行う処理 */
@@ -956,6 +959,7 @@ class RiseText {
     /** タイトル画面を描画する */
     drawTitle1(){
         background(33, 73, 104);
+        image(this.image, 0, 0)
         noStroke()
         fill(255)
         textAlign(CENTER);
@@ -970,7 +974,7 @@ class RiseText {
 
     /** 矢印キーが押された後の画面を描画する */
     drawTitle2(){
-        background(30, this.opacity);
+        background(0, this.opacity);
         noStroke()
         fill(20, 255, 255, this.opacity)
         textAlign(CENTER);
@@ -1085,6 +1089,7 @@ class Game {
         this.end_time = millis()
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
+        /** @param {number} opacity 透明度 */
         this.opacity = -1200
     }
 
@@ -1093,14 +1098,14 @@ class Game {
         this.update()
         //ゲーム終了後の表示
         if(this.in_transition){
-            background(15, 35, 50);
+            background(0);
             if(millis() - this.end_time < 400 ){
-                translate(random(-20, 20), random(-20, 20))
+                translate(random(-10, 10), random(-10, 10))
             }
             player.drawPlayer()
             resetMatrix()
 
-            fill(33, 73, 104, this.opacity)
+            fill(30, 70, 100, this.opacity)
             rectMode(CORNER)
             noStroke()
             rect(0, 0, 1000, 500)
@@ -1117,6 +1122,7 @@ class Game {
         }
     }
 
+    /** メンバ変数を更新する */
     update(){
         if(!this.in_transition && info.hp <= 0){
             this.in_transition = true
@@ -1148,7 +1154,7 @@ class Score {
 
     /** draw()で行う処理 */
     draw(){
-        background(33, 73, 104);
+        background(30, 70, 100);
         this.drawEffect()
         this.update()
         this.drawScore()
