@@ -42,10 +42,10 @@ class Information {
         if(5500 <= millis() - this.start_time){
             this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
         }
-        if(this.level == 2 && this.score >= 3000){
+        if(this.level == 2 && this.score >= 6000){
             this.level = 3
             this.levelup_time = millis()
-        } else if(this.level == 1 && this.score >= 1500){
+        } else if(this.level == 1 && this.score >= 3000){
             this.level = 2
             this.levelup_time = millis()
         }
@@ -118,7 +118,7 @@ class Information {
         this.drawMeter(69, 140, 85, 5.215987, 0, [255, 59, 130], 3)
 
         //針の描画
-        var s = this.score/4500 * 3.141592 + 3.191592
+        var s = this.score/9000 * 3.141592 + 3.191592
         if(6.183184 < s){
             s = 6.183184
         }
@@ -1162,7 +1162,7 @@ class Game {
     drawGame2(){
         background(0);
         if(millis() - this.end_time < 400 ){
-            translate(random(-10, 10), random(-10, 10))
+            translate(random(-5, 5), random(-5, 5))
         }
         player.drawPlayer()
         resetMatrix()
