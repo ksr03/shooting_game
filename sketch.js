@@ -40,12 +40,6 @@ class Information {
         if(5500 <= millis() - this.start_time){
             this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
         }
-
-        if(this.hp <= 0){
-            scoreClass = new Score()
-            game_state = 2
-        }
-
         if(this.score >= 3000){
             this.level = 3
         } else if(this.score >= 1500){
@@ -1087,17 +1081,51 @@ class Game {
         player = new Player()
         enemy_list = new EnemyList() 
         info = new Information()
+        /** @param {number} end_time ゲーム終了時間 */
+        this.end_time = millis()
+        /** @param {boolean} in_transition 遷移中かどうか */
+        this.in_transition = false
+        this.opacity = -300
     }
 
     /** draw()で行う処理 */
     draw(){
-        background(33, 73, 104);
-        bg_1.draw()
-        bg_2.draw()
-        bg_3.draw()
-        enemy_list.draw()
-        player.draw()
-        info.draw()
+        this.update()
+        if(this.in_transition){
+            background(15, 35, 50);
+            if(millis() - this.end_time < 400 ){
+                translate(random(-20, 20), random(-20, 20))
+            }
+            player.drawPlayer()
+            resetMatrix()
+
+            fill(33, 73, 104, this.opacity)
+            rectMode(CORNER)
+            noStroke()
+            rect(0, 0, 1000, 500)
+        }else{
+            background(33, 73, 104);
+            bg_1.draw()
+            bg_2.draw()
+            bg_3.draw()
+            enemy_list.draw()
+            player.draw()
+            info.draw()
+        }
+    }
+
+    update(){
+        if(!this.in_transition && info.hp <= 0){
+            this.in_transition = true
+            this.end_time = millis()
+        }
+        if(this.in_transition){
+            this.opacity += 10
+            if(millis() - this.end_time > 1000){
+                scoreClass = new Score()
+                game_state = 2
+            }
+        }
     }
 }
 
@@ -1105,6 +1133,8 @@ class Game {
 class Score {
     /** コンストラクタ */
     constructor(){
+        /** @param {number} opacity 透明度 */
+        this.opacity = 0
         /** @param {number} score_counter スコアのカウンタ */
         this.score_counter = 0
         /** @param {number} time_counter 時間のカウンタ */
@@ -1126,7 +1156,7 @@ class Score {
     drawScore(){
         noStroke()
         textAlign(CENTER);
-        fill(255)
+        fill(255, this.opacity)
         textSize(40);
         text('Your score is', 500, 150);
 
@@ -1141,6 +1171,7 @@ class Score {
 
     /** メンバ変数を更新する */
     update(){
+        this.opacity += 7
         if(this.score_counter < info.score){
             this.score_counter += info.score / 90
             this.score_counter = Math.min(this.score_counter, info.score)
