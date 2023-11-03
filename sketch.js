@@ -1168,7 +1168,7 @@ class Game {
         player.drawPlayer()
         resetMatrix()
 
-        fill(30, 70, 100, this.opacity)
+        fill(49, 97, 129, this.opacity)
         rectMode(CORNER)
         noStroke()
         rect(0, 0, 1000, 500)
@@ -1208,7 +1208,7 @@ class Score {
 
     /** draw()で行う処理 */
     draw(){
-        background(30, 70, 100);
+        background(49, 97, 129);
         tint(255, (this.score_counter/info.score)*1275)
         image(this.image, 0, 0)
         this.drawEffect()
