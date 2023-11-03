@@ -504,7 +504,7 @@ class PlayerEffect {
 /** エネミーの情報を保持する*/
 class Enemy {
     /** コンストラクタ*/
-    constructor(){
+    constructor(type){
         /** @param {Vector} location 位置 */
         this.location = createVector(1015, int(random(10, 490)))
         /** @param {Vector} velocity 速度 */
@@ -519,12 +519,29 @@ class Enemy {
         this.isTarget = false
         /** @param {Array} effect_list エフェクトを保持する配列 */
         this.effect_list = []
+        /** @param {number} type 敵の種類 */
+        this.type = type
+        /** @param {color} color 色 */
+        if(type == 1){
+            this.color = color(20, 255, 255)
+        }else if(type == 2){
+            this.color = color(20, 255, 255)
+        }else {
+            this.color = color(20, 255, 255)
+        }
     }
 
     /** drawで行う処理*/
     draw(){
         this.move()
-        this.drawEnemy()
+        if(this.type == 1){
+            //TODO: drawEnemy_1に変更
+            this.drawEnemy_1()
+        }else if(this.type == 2){
+            this.drawEnemy_2()
+        }else{
+            this.drawEnemy_3()
+        }
 
         //攻撃の管理
         this.addAttack()
@@ -547,10 +564,10 @@ class Enemy {
         this.location.add(this.velocity)
     }
 
-    /** エネミーを描画する*/
-    drawEnemy(){
+    /** エネミー1を描画する*/
+    drawEnemy_1(){
         noStroke()
-        fill(20, 255, 255)
+        fill(this.color)
         beginShape()
         for(var i=0; i<3; i++){
             vertex(this.location.x+sin(i*2.09439+4.712388)*15, this.location.y+cos(i*2.09439+4.712388)*15)
@@ -558,7 +575,7 @@ class Enemy {
         endShape(CLOSE)
 
         //ブラー
-        fill(20, 255, 255, 15)
+        fill(red(this.color), green(this.color), blue(this.color), 15)
         rectMode(CORNER)
         for(var i=0; i<5; i++){
             rect(this.location.x+7.5, this.location.y-13, 7*i, 26)
@@ -589,10 +606,112 @@ class Enemy {
         endShape(CLOSE)
     }
 
+    /** エネミー2を描画する */
+    drawEnemy_2(){
+        //本体
+        noStroke()
+        fill(this.color)
+        beginShape()
+        for(var i=0; i<4; i++){
+            vertex(this.location.x+sin(i*1.570796)*15, this.location.y+cos(i*1.570796)*15)
+            vertex(this.location.x+sin(i*1.570796+0.785398)*7, this.location.y+cos(i*1.570796+0.785398)*7)
+        }
+        endShape(CLOSE)
+
+        //グロー
+        for(var i=0; i<4; i++){
+            noFill()
+            stroke(red(this.color), green(this.color), blue(this.color), 25)
+            strokeWeight((i+1)*2)
+            beginShape()
+            for(var j=0; j<4; j++){
+                vertex(this.location.x+sin(j*1.570796)*15, this.location.y+cos(j*1.570796)*15)
+                vertex(this.location.x+sin(j*1.570796+0.785398)*7, this.location.y+cos(j*1.570796+0.785398)*7)
+            }
+            endShape(CLOSE)
+        }
+
+        //六芒星
+        noFill()
+        if(this.isTarget){
+            stroke(255, 10)
+            for(var i=0; i<4; i++){
+                strokeWeight((i+1)*3)
+                beginShape()
+                for(var i=0; i<6; i++){
+                    vertex(this.location.x+sin(i*1.0472 + this.effect_angle/50)*20, this.location.y+cos(i*1.0472 + this.effect_angle/50)*20)
+                    vertex(this.location.x+sin(i*1.0472 + 0.5236 + this.effect_angle/50)*15, this.location.y+cos(i*1.0472 + 0.5236 + this.effect_angle/50)*15)
+                }
+                endShape(CLOSE)
+            }
+            stroke(210, 250, 255)
+            strokeWeight(3)
+        } else {
+            stroke(255)
+            strokeWeight(1)
+        }
+        beginShape()
+        for(var i=0; i<6; i++){
+            vertex(this.location.x+sin(i*1.0472 + this.effect_angle/50)*20, this.location.y+cos(i*1.0472 + this.effect_angle/50)*20)
+            vertex(this.location.x+sin(i*1.0472 + 0.5236 + this.effect_angle/50)*15, this.location.y+cos(i*1.0472 + 0.5236 + this.effect_angle/50)*15)
+        }
+        endShape(CLOSE)
+    }
+
+    /** エネミー3を描画する */
+    drawEnemy_3(){
+        //本体
+        noStroke()
+        fill(this.color)
+        beginShape()
+        for(var i=0; i<6; i++){
+            vertex(this.location.x+sin(i*1.0472 - this.effect_angle/50)*15, this.location.y+cos(i*1.0472 - this.effect_angle/50)*15)
+            vertex(this.location.x+sin(i*1.0472 + 0.5236 - this.effect_angle/50)*10, this.location.y+cos(i*1.0472 + 0.5236 - this.effect_angle/50)*10)
+        }
+        endShape(CLOSE)
+
+        //グロー
+        for(var i=0; i<4; i++){
+            noFill()
+            stroke(red(this.color), green(this.color), blue(this.color), 30)
+            strokeWeight((i+1)*2)
+            beginShape()
+            for(var j=0; j<6; j++){
+                vertex(this.location.x+sin(j*1.0472 - this.effect_angle/50)*15, this.location.y+cos(j*1.0472 - this.effect_angle/50)*15)
+                vertex(this.location.x+sin(j*1.0472 + 0.5236 - this.effect_angle/50)*10, this.location.y+cos(j*1.0472 + 0.5236 - this.effect_angle/50)*10)
+            }
+            endShape(CLOSE)
+        }
+
+        //六角形
+        noFill()
+        if(this.isTarget){
+            stroke(255, 10)
+            for(var i=0; i<4; i++){
+                strokeWeight((i+1)*3)
+                beginShape()
+                for(var i=0; i<6; i++){
+                    vertex(this.location.x+sin(i*1.0472 + this.effect_angle/50)*20, this.location.y+cos(i*1.0472 + this.effect_angle/50)*20)
+                }
+                endShape(CLOSE)
+            }
+            stroke(210, 250, 255)
+            strokeWeight(3)
+        } else {
+            stroke(255)
+            strokeWeight(1)
+        }
+        beginShape()
+        for(var i=0; i<6; i++){
+            vertex(this.location.x+sin(i*1.0472 + this.effect_angle/50)*20, this.location.y+cos(i*1.0472 + this.effect_angle/50)*20)
+        }
+        endShape(CLOSE)
+    }
+
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
         if(millis() - this.attack_time > 0){
-        const attack = new EnemyAttack(this.location.x, this.location.y)
+        const attack = new EnemyAttack(this.location.x, this.location.y, this.color)
         this.attack_list.push(attack)
         this.attack_time = millis() + int(random(50, 1000))
         }
@@ -609,8 +728,20 @@ class Enemy {
     drop(){
         for(var i=0; i<player.attack_list.length; i++){
             if(dist(this.location.x, this.location.y, player.attack_list[i].location.x, player.attack_list[i].location.y) < 15){
-                for(var j=0; j<10; j++){
-                    this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
+                if(this.type == 1){
+                    for(var j=0; j<10; j++){
+                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
+                    }
+                }else if(this.type == 2){
+                    for(var j=0; j<10; j++){
+                        var c = random(0, 1)
+                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [0 + c*255, 255, 117 + c*138]))
+                    }
+                }else {
+                    for(var j=0; j<10; j++){
+                        var c = random(0, 1)
+                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [255, 75 + c*150, 226 + c*29]))
+                    }
                 }
                 this.location.x = -50
                 player.attack_list[i].location.x = 1050
@@ -659,7 +790,24 @@ class EnemyList{
 
     /** エネミーを配列に追加する*/
     addEnemy(){
-        const enemy = new Enemy()
+        //エネミーの生成
+        var enemy = new Enemy(1)
+        var rand
+        if(info.level == 2){
+            rand = int(random(1, 3))
+            if(rand == 2){
+                enemy = new Enemy(2)
+            }
+        }
+        if(info.level == 3){
+            rand = int(random(1, 4))
+            if(rand == 2){
+                enemy = new Enemy(2)
+            }else if(rand == 3){
+                enemy = new Enemy(3)
+            }
+        }
+
         if(this.enemy_list.length < 15){
             this.enemy_list.push(enemy)
         }
@@ -730,10 +878,12 @@ class EnemyAttack {
      * コンストラクタ
      * @param {number} x x座標
      * @param {number} y y座標
+     * @param {color} color 色
      */
-    constructor(x, y){
+    constructor(x, y, color){
         this.velocity = createVector(-8, 0)
         this.location = createVector(x, y)
+        this.color = color
     }
 
     /** drawで行う処理*/
@@ -752,14 +902,13 @@ class EnemyAttack {
     drawAttack(){
         noStroke()
         rectMode(CENTER)
-        fill(20, 255, 255)
-        rect(this.location.x, this.location.y, 14, 4)
+        fill(this.color)
+        ellipse(this.location.x, this.location.y, 5, 5)
 
         //攻撃の装飾
-        fill(20, 255, 255, 30)
-        rectMode(CORNER)
-        for(var i=0; i<5; i++){
-            rect(this.location.x+4, this.location.y-2, 5*i, 4)
+        ellipseMode(CENTER)
+        for(var i=0; i<4; i++){
+            ellipse(this.location.x-this.velocity.x*i/2, this.location.y-this.velocity.y*i/2, 5, 5)
         }
     }
 
