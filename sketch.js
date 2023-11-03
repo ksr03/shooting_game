@@ -982,6 +982,7 @@ class Title {
         this.opacity = 0
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
+        /** @param {Image} image タイトル画面の背景 */
         this.image = loadImage('title.jpg')
     }
 
@@ -1167,7 +1168,7 @@ class Game {
         player.drawPlayer()
         resetMatrix()
 
-        fill(30, 70, 100, this.opacity)
+        fill(49, 97, 129, this.opacity)
         rectMode(CORNER)
         noStroke()
         rect(0, 0, 1000, 500)
@@ -1201,11 +1202,15 @@ class Score {
         this.time_counter = 0
         /** @param {Array} effect_list エフェクトを保持する配列 */
         this.effect_list = []
+        /** @param {Image} image スコア表示画面の背景 */
+        this.image = loadImage('score.png')
     }
 
     /** draw()で行う処理 */
     draw(){
-        background(30, 70, 100);
+        background(49, 97, 129);
+        tint(255, (this.score_counter/info.score)*1275)
+        image(this.image, 0, 0)
         this.drawEffect()
         this.update()
         this.drawScore()
