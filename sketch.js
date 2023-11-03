@@ -522,13 +522,7 @@ class Enemy {
         /** @param {number} type 敵の種類 */
         this.type = type
         /** @param {color} color 色 */
-        if(type == 1){
-            this.color = color(20, 255, 255)
-        }else if(type == 2){
-            this.color = color(20, 255, 255)
-        }else {
-            this.color = color(20, 255, 255)
-        }
+        this.color = color(20, 255, 255)
     }
 
     /** drawで行う処理*/
@@ -728,20 +722,8 @@ class Enemy {
     drop(){
         for(var i=0; i<player.attack_list.length; i++){
             if(dist(this.location.x, this.location.y, player.attack_list[i].location.x, player.attack_list[i].location.y) < 15){
-                if(this.type == 1){
-                    for(var j=0; j<10; j++){
-                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
-                    }
-                }else if(this.type == 2){
-                    for(var j=0; j<10; j++){
-                        var c = random(0, 1)
-                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [0 + c*255, 255, 117 + c*138]))
-                    }
-                }else {
-                    for(var j=0; j<10; j++){
-                        var c = random(0, 1)
-                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [255, 75 + c*150, 226 + c*29]))
-                    }
+                for(var j=0; j<10; j++){
+                    this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
                 }
                 this.location.x = -50
                 player.attack_list[i].location.x = 1050
