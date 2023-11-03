@@ -521,6 +521,14 @@ class Enemy {
         this.effect_list = []
         /** @param {number} type 敵の種類 */
         this.type = type
+        /** @param {color} color 色 */
+        if(type == 1){
+            this.color = color(20, 255, 255)
+        }else if(type == 2){
+            this.color = color(20, 255, 255)
+        }else {
+            this.color = color(20, 255, 255)
+        }
     }
 
     /** drawで行う処理*/
@@ -559,7 +567,7 @@ class Enemy {
     /** エネミー1を描画する*/
     drawEnemy_1(){
         noStroke()
-        fill(20, 255, 255)
+        fill(this.color)
         beginShape()
         for(var i=0; i<3; i++){
             vertex(this.location.x+sin(i*2.09439+4.712388)*15, this.location.y+cos(i*2.09439+4.712388)*15)
@@ -567,7 +575,7 @@ class Enemy {
         endShape(CLOSE)
 
         //ブラー
-        fill(20, 255, 255, 15)
+        fill(red(this.color), green(this.color), blue(this.color), 15)
         rectMode(CORNER)
         for(var i=0; i<5; i++){
             rect(this.location.x+7.5, this.location.y-13, 7*i, 26)
@@ -602,7 +610,7 @@ class Enemy {
     drawEnemy_2(){
         //本体
         noStroke()
-        fill(0, 255, 117)
+        fill(this.color)
         beginShape()
         for(var i=0; i<4; i++){
             vertex(this.location.x+sin(i*1.570796)*15, this.location.y+cos(i*1.570796)*15)
@@ -613,7 +621,7 @@ class Enemy {
         //グロー
         for(var i=0; i<4; i++){
             noFill()
-            stroke(0, 255, 117, 25)
+            stroke(red(this.color), green(this.color), blue(this.color), 25)
             strokeWeight((i+1)*2)
             beginShape()
             for(var j=0; j<4; j++){
@@ -654,7 +662,7 @@ class Enemy {
     drawEnemy_3(){
         //本体
         noStroke()
-        fill(255, 96, 239)
+        fill(this.color)
         beginShape()
         for(var i=0; i<6; i++){
             vertex(this.location.x+sin(i*1.0472 - this.effect_angle/50)*15, this.location.y+cos(i*1.0472 - this.effect_angle/50)*15)
@@ -665,7 +673,7 @@ class Enemy {
         //グロー
         for(var i=0; i<4; i++){
             noFill()
-            stroke(255, 96, 239, 30)
+            stroke(red(this.color), green(this.color), blue(this.color), 30)
             strokeWeight((i+1)*2)
             beginShape()
             for(var j=0; j<6; j++){
@@ -703,7 +711,7 @@ class Enemy {
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
         if(millis() - this.attack_time > 0){
-        const attack = new EnemyAttack(this.location.x, this.location.y)
+        const attack = new EnemyAttack(this.location.x, this.location.y, this.color)
         this.attack_list.push(attack)
         this.attack_time = millis() + int(random(50, 1000))
         }
@@ -870,10 +878,12 @@ class EnemyAttack {
      * コンストラクタ
      * @param {number} x x座標
      * @param {number} y y座標
+     * @param {color} color 色
      */
-    constructor(x, y){
+    constructor(x, y, color){
         this.velocity = createVector(-8, 0)
         this.location = createVector(x, y)
+        this.color = color
     }
 
     /** drawで行う処理*/
@@ -892,14 +902,13 @@ class EnemyAttack {
     drawAttack(){
         noStroke()
         rectMode(CENTER)
-        fill(20, 255, 255)
-        rect(this.location.x, this.location.y, 14, 4)
+        fill(this.color)
+        ellipse(this.location.x, this.location.y, 5, 5)
 
         //攻撃の装飾
-        fill(20, 255, 255, 30)
-        rectMode(CORNER)
-        for(var i=0; i<5; i++){
-            rect(this.location.x+4, this.location.y-2, 5*i, 4)
+        ellipseMode(CENTER)
+        for(var i=0; i<4; i++){
+            ellipse(this.location.x-this.velocity.x*i/2, this.location.y-this.velocity.y*i/2, 5, 5)
         }
     }
 
