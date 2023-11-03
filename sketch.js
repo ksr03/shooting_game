@@ -528,7 +528,7 @@ class Enemy {
         this.move()
         if(this.type == 1){
             //TODO: drawEnemy_1に変更
-            this.drawEnemy_3()
+            this.drawEnemy_1()
         }else if(this.type == 2){
             this.drawEnemy_2()
         }else{
@@ -654,7 +654,7 @@ class Enemy {
     drawEnemy_3(){
         //本体
         noStroke()
-        fill(255, 71, 226)
+        fill(255, 96, 239)
         beginShape()
         for(var i=0; i<6; i++){
             vertex(this.location.x+sin(i*1.0472 - this.effect_angle/50)*15, this.location.y+cos(i*1.0472 - this.effect_angle/50)*15)
@@ -665,7 +665,7 @@ class Enemy {
         //グロー
         for(var i=0; i<4; i++){
             noFill()
-            stroke(255, 71, 226, 30)
+            stroke(255, 96, 239, 30)
             strokeWeight((i+1)*2)
             beginShape()
             for(var j=0; j<6; j++){
@@ -720,8 +720,20 @@ class Enemy {
     drop(){
         for(var i=0; i<player.attack_list.length; i++){
             if(dist(this.location.x, this.location.y, player.attack_list[i].location.x, player.attack_list[i].location.y) < 15){
-                for(var j=0; j<10; j++){
-                    this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
+                if(this.type == 1){
+                    for(var j=0; j<10; j++){
+                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
+                    }
+                }else if(this.type == 2){
+                    for(var j=0; j<10; j++){
+                        var c = random(0, 1)
+                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [0 + c*255, 255, 117 + c*138]))
+                    }
+                }else {
+                    for(var j=0; j<10; j++){
+                        var c = random(0, 1)
+                        this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [255, 75 + c*150, 226 + c*29]))
+                    }
                 }
                 this.location.x = -50
                 player.attack_list[i].location.x = 1050
