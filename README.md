@@ -1,5 +1,5 @@
 # 概要
-2021年に大学の授業の自由制作で作成したProcessingによるシューティングゲームを、p5.jsに移植してブラッシュアップしたものです。
+大学の授業の自由制作で作成したProcessingによるシューティングゲームを、p5.jsを使ってリメイクしたものです。
 <br><br>
 ![ss1](https://github.com/ksr03/shooting_game/assets/117695575/cbdda14b-7ffa-4d82-8bb8-d5e3ac14bd77)
 ![ss2](https://github.com/ksr03/shooting_game/assets/117695575/5d7aecba-9089-48a9-b22d-cc47c41fbd31)
