@@ -715,9 +715,9 @@ class Enemy {
                 this.attack_list.push(attack)
                 this.attack_time = millis() + 5000
             }else {
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 3), this.color)
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 1), this.color)
                 this.attack_list.push(attack)
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, -3), this.color)
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, -1), this.color)
                 this.attack_list.push(attack)
                 this.attack_time = millis() + 3000
             }
@@ -1313,14 +1313,14 @@ class Game {
 
     /** ゲーム終了時の画面を描画する */
     drawGame2(){
-        background(0);
+        background(11, 23, 37);
         if(millis() - this.end_time < 400 ){
             translate(random(-5, 5), random(-5, 5))
         }
         player.drawPlayer()
         resetMatrix()
 
-        fill(49, 97, 129, this.opacity)
+        fill(11, 23, 37, this.opacity)
         rectMode(CORNER)
         noStroke()
         rect(0, 0, 1000, 500)
@@ -1360,7 +1360,7 @@ class Score {
 
     /** draw()で行う処理 */
     draw(){
-        background(49, 97, 129);
+        background(11, 23, 37);
         tint(255, (this.score_counter/info.score)*1275)
         image(this.image, 0, 0)
         this.drawEffect()
