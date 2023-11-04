@@ -704,25 +704,22 @@ class Enemy {
 
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
-        if(millis() - this.attack_time > 0){
+        if(millis() - this.attack_time > 0 && 0 < this.location.x){
             if(this.type == 1){
                 var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 0), this.color)
                 this.attack_list.push(attack)
                 this.attack_time = millis() + int(random(50, 1000))
             }else if(this.type == 2){
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-5.5, -5.5), this.color)
+                var velocity = createVector(player.location.x - this.location.x, player.location.y - this.location.y).normalize()
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(velocity.x*8, velocity.y*8), this.color)
                 this.attack_list.push(attack)
-                attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-5.5, 5.5), this.color)
-                this.attack_list.push(attack)
-                attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(5.5, -5.5), this.color)
-                this.attack_list.push(attack)
-                attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(5.5, 5.5), this.color)
-                this.attack_list.push(attack)
-                this.attack_time = millis() + int(random(500, 1000))
+                this.attack_time = millis() + 5000
             }else {
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(player.location.x - this.location.x, player.location.y - this.location.y), this.color)
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 3), this.color)
                 this.attack_list.push(attack)
-                this.attack_time = millis() + int(random(50, 1000))
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, -3), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + 3000
             }
         }
     }
@@ -906,7 +903,7 @@ class EnemyAttack {
         //攻撃の装飾
         ellipseMode(CENTER)
         for(var i=0; i<4; i++){
-            ellipse(this.location.x-this.velocity.x*i/2, this.location.y-this.velocity.y*i/2, 5, 5)
+            ellipse(this.location.x-this.velocity.x*i/4, this.location.y-this.velocity.y*i/2, 5, 5)
         }
     }
 
