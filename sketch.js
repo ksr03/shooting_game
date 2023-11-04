@@ -705,9 +705,25 @@ class Enemy {
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
         if(millis() - this.attack_time > 0){
-        const attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 0), this.color)
-        this.attack_list.push(attack)
-        this.attack_time = millis() + int(random(50, 1000))
+            if(this.type == 1){
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 0), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + int(random(50, 1000))
+            }else if(this.type == 2){
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-5.5, -5.5), this.color)
+                this.attack_list.push(attack)
+                attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-5.5, 5.5), this.color)
+                this.attack_list.push(attack)
+                attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(5.5, -5.5), this.color)
+                this.attack_list.push(attack)
+                attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(5.5, 5.5), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + int(random(500, 1000))
+            }else {
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(player.location.x - this.location.x, player.location.y - this.location.y), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + int(random(50, 1000))
+            }
         }
     }
 
@@ -764,7 +780,7 @@ class EnemyList{
         this.counter--
         if(this.counter <= 0){
             this.addEnemy()
-            this.counter = int(random(30, info.level == 1 ? 60 : info.level == 2 ? 50 : 30))
+            this.counter = int(random(30, 60))
         }
 
         this.drawEnemyList()
