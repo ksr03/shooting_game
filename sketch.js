@@ -704,10 +704,23 @@ class Enemy {
 
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
-        if(millis() - this.attack_time > 0){
-        const attack = new EnemyAttack(this.location.x, this.location.y, this.color)
-        this.attack_list.push(attack)
-        this.attack_time = millis() + int(random(50, 1000))
+        if(millis() - this.attack_time > 0 && 0 < this.location.x){
+            if(this.type == 1){
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 0), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + int(random(50, 1000))
+            }else if(this.type == 2){
+                var velocity = createVector(player.location.x - this.location.x, player.location.y - this.location.y).normalize()
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(velocity.x*8, velocity.y*8), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + 5000
+            }else {
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 1), this.color)
+                this.attack_list.push(attack)
+                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, -1), this.color)
+                this.attack_list.push(attack)
+                this.attack_time = millis() + 3000
+            }
         }
     }
 
@@ -764,7 +777,7 @@ class EnemyList{
         this.counter--
         if(this.counter <= 0){
             this.addEnemy()
-            this.counter = int(random(30, info.level == 1 ? 60 : info.level == 2 ? 50 : 30))
+            this.counter = int(random(30, 60))
         }
 
         this.drawEnemyList()
@@ -858,13 +871,13 @@ class PlayerAttack {
 class EnemyAttack {
     /**
      * コンストラクタ
-     * @param {number} x x座標
-     * @param {number} y y座標
+     * @param {Vector} location 速度
+     * @param {Vector} velocity 速度
      * @param {color} color 色
      */
-    constructor(x, y, color){
-        this.velocity = createVector(-8, 0)
-        this.location = createVector(x, y)
+    constructor(location, velocity, color){
+        this.location = location
+        this.velocity = velocity
         this.color = color
     }
 
@@ -890,7 +903,7 @@ class EnemyAttack {
         //攻撃の装飾
         ellipseMode(CENTER)
         for(var i=0; i<4; i++){
-            ellipse(this.location.x-this.velocity.x*i/2, this.location.y-this.velocity.y*i/2, 5, 5)
+            ellipse(this.location.x-this.velocity.x*i/4, this.location.y-this.velocity.y*i/2, 5, 5)
         }
     }
 
@@ -984,15 +997,23 @@ class Sky {
             background(186, 217, 222);
             image(this.image_1, 0, 0)
         }else if(info.level == 2){
-            background(255, 198, 143);
+            if((millis() - info.levelup_time)/4 > 255){
+                image(this.image_2, 0, 0)    
+            }else {
+                background(255, 198, 143);
             image(this.image_1, 0, 0)
             tint(255, (millis() - info.levelup_time)/4)
             image(this.image_2, 0, 0)
+            }
         }else{
-            background(33, 73, 104);
-            image(this.image_2, 0, 0)
-            tint(255, (millis() - info.levelup_time)/4)
-            image(this.image_3, 0, 0)
+            if((millis() - info.levelup_time)/4 > 255){
+                image(this.image_3, 0, 0)    
+            }else {
+                background(33, 73, 104);
+                image(this.image_2, 0, 0)
+                tint(255, (millis() - info.levelup_time)/4)
+                image(this.image_3, 0, 0)
+            }
         }
     }
 }
@@ -1292,14 +1313,14 @@ class Game {
 
     /** ゲーム終了時の画面を描画する */
     drawGame2(){
-        background(0);
+        background(11, 23, 37);
         if(millis() - this.end_time < 400 ){
             translate(random(-5, 5), random(-5, 5))
         }
         player.drawPlayer()
         resetMatrix()
 
-        fill(49, 97, 129, this.opacity)
+        fill(11, 23, 37, this.opacity)
         rectMode(CORNER)
         noStroke()
         rect(0, 0, 1000, 500)
@@ -1339,7 +1360,7 @@ class Score {
 
     /** draw()で行う処理 */
     draw(){
-        background(49, 97, 129);
+        background(11, 23, 37);
         tint(255, (this.score_counter/info.score)*1275)
         image(this.image, 0, 0)
         this.drawEffect()
