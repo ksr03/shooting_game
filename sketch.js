@@ -921,18 +921,18 @@ class Background {
      * コンストラクタ
      * @param {number} division 画面幅の分割数
      * @param {number} speed 背景の移動速度
-     * @param {Array} colorSet 色
+     * @param {Array} color_set 色
      * @param {number} height 山々の高さ
      */
-    constructor(division, speed, height, colorSet){
+    constructor(division, speed, height, color_set){
       /** @param {number} displacement 変位 */
       this.displacement = 0
       /** @param {number} speed 背景の移動速度 */
       this.speed = speed
       /** @param {number} division 画面幅の分割数 */
       this.division = division
-      /** @param {Array} colorSet 色 */
-      this.colorSet = colorSet
+      /** @param {Array} color_set 色 */
+      this.color_set = color_set
       /** @param {number} height 山々の高さ */
       this.height = height
       /** @param {number} bg 山の高さの配列 */
@@ -964,11 +964,11 @@ class Background {
     drawBackground(){
       noStroke()
       if(info.level == 1){
-        fill(this.colorSet[0])
+        fill(this.color_set[0])
       }else if(info.level == 2){
-        fill(lerpColor(this.colorSet[0], this.colorSet[1], (millis() - info.levelup_time) / 1000))
+        fill(lerpColor(this.color_set[0], this.color_set[1], (millis() - info.levelup_time) / 1000))
       }else {
-        fill(lerpColor(this.colorSet[1], this.colorSet[2], (millis() - info.levelup_time) / 1000))
+        fill(lerpColor(this.color_set[1], this.color_set[2], (millis() - info.levelup_time) / 1000))
       }
       beginShape()
       vertex(1000, 500)
@@ -986,6 +986,7 @@ class Sky {
         this.image_1 = loadImage('bg1.jpg')
         this.image_2 = loadImage('bg2.jpg')
         this.image_3 = loadImage('bg3.jpg')
+        this.color_set = [color(131, 170, 176), color(223, 152, 107), color(40, 72, 99)]
     }
 
     draw(){
@@ -993,28 +994,37 @@ class Sky {
     }
 
     drawSky(){
+        //単色背景のみ
         if(info.level == 1){
-            background(186, 217, 222);
-            image(this.image_1, 0, 0)
+            background(this.color_set[0])
         }else if(info.level == 2){
-            if((millis() - info.levelup_time)/4 > 255){
-                image(this.image_2, 0, 0)    
-            }else {
-                background(255, 198, 143);
-            image(this.image_1, 0, 0)
-            tint(255, (millis() - info.levelup_time)/4)
-            image(this.image_2, 0, 0)
-            }
-        }else{
-            if((millis() - info.levelup_time)/4 > 255){
-                image(this.image_3, 0, 0)    
-            }else {
-                background(33, 73, 104);
-                image(this.image_2, 0, 0)
-                tint(255, (millis() - info.levelup_time)/4)
-                image(this.image_3, 0, 0)
-            }
+            background(lerpColor(this.color_set[0], this.color_set[1], (millis() - info.levelup_time) / 1000))
+        }else {
+            background(lerpColor(this.color_set[1], this.color_set[2], (millis() - info.levelup_time) / 1000))
         }
+
+        //背景画像
+        // if(info.level == 1){
+        //     image(this.image_1, 0, 0)
+        // }else if(info.level == 2){
+        //     if((millis() - info.levelup_time)/4 > 255){
+        //         image(this.image_2, 0, 0)    
+        //     }else {
+        //         var a = (millis() - info.levelup_time)/4
+        //         image(this.image_1, 0, 0)
+        //         tint(255, (millis() - info.levelup_time)/4)
+        //         image(this.image_2, 0, 0)
+        //     }
+        // }else{
+        //     if((millis() - info.levelup_time)/4 > 255){
+        //         image(this.image_3, 0, 0)    
+        //     }else {
+        //         var a = (millis() - info.levelup_time)/4
+        //         image(this.image_2, 0, 0)
+        //         tint(255, (millis() - info.levelup_time)/4)
+        //         image(this.image_3, 0, 0)
+        //     }
+        // }
     }
 }
 
