@@ -252,10 +252,6 @@ class Player {
         this.location = createVector(500, 200)
         /** @param {Vector} velocity 速度 */
         this.velocity = createVector(0, 0)
-        /** @param {Vector} accel 加速度 */
-        this.accel = createVector(0, 0)
-        /** @param {number} topspeed 最高速度 */
-        this.topspeed = 10
         
         /** @param {number} attack_num 残段数 */
         this.attack_num = 10;
@@ -285,9 +281,6 @@ class Player {
         this.addEffect()
         this.drawEffect()
 
-        if(space){
-            this.addAttack(this.location.x, this.location.y)
-        }
         this.drawAttack()
 
         //チャージ関連の処理
@@ -296,20 +289,13 @@ class Player {
 
     /** 位置を更新する*/
     move(){
-        //加速度の更新
-        if(right) this.accel.x += 0.3
-        if(left) this.accel.x -= 0.3
-        if(up) this.accel.y -= 0.3
-        if(down) this.accel.y += 0.3
-        this.accel.add(-this.accel.x/5, -this.accel.y/5)
-
         //速度の更新
-        this.velocity.add(this.accel)
-        this.velocity.add(-this.velocity.x/15, -this.velocity.y/15)
-        this.velocity.limit(this.topspeed)
+        this.velocity.x = (mouseX - this.location.x)/15
+        this.velocity.y = (mouseY - this.location.y)/15
+        this.velocity.limit(10)
 
         //位置の更新
-        this.location.add(this.velocity.x-2 < -8 ? -8 : this.velocity.x-3, this.velocity.y)
+        this.location.add(this.velocity)
         if(this.location.x < 15) this.location.x = 15
         if(this.location.x > 985) this.location.x = 985
         if(this.location.y < 15) this.location.y = 15
@@ -1175,7 +1161,7 @@ class Title {
         this.drawSpaceKey(630, 396)
     }
 
-    /** 矢印キーが押された後の画面を描画する */
+    /** クリック後の画面を描画する */
     drawTitle2(){
         background(0, this.opacity);
         noStroke()
@@ -1264,12 +1250,6 @@ class Title {
 
     /** game_stateの更新を行う */
     transition(){
-        if(!this.in_transition && this.opacity >= 255){
-            if(right||left||up||down){
-                gameClass = new Game()
-                this.in_transition = true
-            }
-        }
         if(this.in_transition){
             gameClass.draw();
             player.location.x = 500
@@ -1277,6 +1257,14 @@ class Title {
             if(this.opacity == 0){
                 game_state = 1
             }
+        }
+    }
+
+    /** ゲームスタート */
+    click(){
+        if(!this.in_transition && this.opacity >= 255){
+            gameClass = new Game()
+            this.in_transition = true
         }
     }
 }
@@ -1350,6 +1338,11 @@ class Game {
             }
         }
     }
+
+    /** プレイヤーの攻撃の追加を行う */
+    click(){
+        player.addAttack()
+    }
 }
 
 /** スコア表示を行う */
@@ -1376,7 +1369,6 @@ class Score {
         this.drawEffect()
         this.update()
         this.drawScore()
-        this.transition()
     }
 
     /** スコアを描画する */
@@ -1422,18 +1414,14 @@ class Score {
     }
 
     /** game_stateの更新を行う */
-    transition(){
+    click(){
         if(this.time_counter >= 255){
-            if(right||left||up||down){
-                game_state = 0;
-                titleClass = new Title()
-            }
+            game_state = 0;
+            titleClass = new Title()
         }
     }
 }
 
-//各キーの判定
-var up, down, left, right, space;
 var bg_1, bg_2, bg_3
 var game_state
 var player, enemy_list, info
@@ -1465,20 +1453,16 @@ function draw(){
     }
 }
 
-/** キーが押されたかを判定する*/
-function keyPressed() {
-    if(keyCode == LEFT_ARROW) left = true;
-    if(keyCode == RIGHT_ARROW) right = true;
-    if(keyCode == UP_ARROW) up = true;
-    if(keyCode == DOWN_ARROW) down = true;
-    if(key == ' ') space = true;
-}
-
-/** キーが離されたかを判定する*/
-function keyReleased(){
-    if(keyCode == LEFT_ARROW) left = false;
-    if(keyCode == RIGHT_ARROW) right = false;
-    if(keyCode == UP_ARROW) up = false;
-    if(keyCode == DOWN_ARROW) down = false;
-    space = false
+function mouseClicked(){
+    switch(game_state){
+        case 0:
+            titleClass.click()
+            break
+        case 1:
+            gameClass.click()
+            break
+        case 2:
+            scoreClass.click()
+            break
+    }
 }
