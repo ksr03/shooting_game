@@ -281,9 +281,6 @@ class Player {
         this.addEffect()
         this.drawEffect()
 
-        if(mouseIsPressed){
-            this.addAttack(this.location.x, this.location.y)
-        }
         this.drawAttack()
 
         //チャージ関連の処理
@@ -1253,12 +1250,6 @@ class Title {
 
     /** game_stateの更新を行う */
     transition(){
-        if(!this.in_transition && this.opacity >= 255){
-            if(mouseIsPressed){
-                gameClass = new Game()
-                this.in_transition = true
-            }
-        }
         if(this.in_transition){
             gameClass.draw();
             player.location.x = 500
@@ -1266,6 +1257,14 @@ class Title {
             if(this.opacity == 0){
                 game_state = 1
             }
+        }
+    }
+
+    /** ゲームスタート */
+    click(){
+        if(!this.in_transition && this.opacity >= 255){
+            gameClass = new Game()
+            this.in_transition = true
         }
     }
 }
@@ -1339,6 +1338,11 @@ class Game {
             }
         }
     }
+
+    /** プレイヤーの攻撃の追加を行う */
+    click(){
+        player.addAttack()
+    }
 }
 
 /** スコア表示を行う */
@@ -1365,7 +1369,6 @@ class Score {
         this.drawEffect()
         this.update()
         this.drawScore()
-        this.transition()
     }
 
     /** スコアを描画する */
@@ -1411,12 +1414,10 @@ class Score {
     }
 
     /** game_stateの更新を行う */
-    transition(){
+    click(){
         if(this.time_counter >= 255){
-            if(mouseIsPressed){
-                game_state = 0;
-                titleClass = new Title()
-            }
+            game_state = 0;
+            titleClass = new Title()
         }
     }
 }
@@ -1452,6 +1453,16 @@ function draw(){
     }
 }
 
-// function mouseClicked(){
-//     click = true
-// }
+function mouseClicked(){
+    switch(game_state){
+        case 0:
+            titleClass.click()
+            break
+        case 1:
+            gameClass.click()
+            break
+        case 2:
+            scoreClass.click()
+            break
+    }
+}
