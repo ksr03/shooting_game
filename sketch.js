@@ -969,10 +969,8 @@ class Background {
 /** 空を描画する */
 class Sky {
     constructor(){
-        this.image_1 = loadImage('bg1.jpg')
-        this.image_2 = loadImage('bg2.jpg')
-        this.image_3 = loadImage('bg3.jpg')
-        this.color_set = [color(131, 170, 176), color(223, 152, 107), color(40, 72, 99)]
+        /** @param {Array} color_set 空の色 */
+        this.color_set = [[color(98, 152, 160), color(157, 183, 187)], [color(217, 123, 94), color(229, 187, 123)], [color(43, 71, 97), color(55, 125, 161)]]
     }
 
     draw(){
@@ -980,37 +978,24 @@ class Sky {
     }
 
     drawSky(){
-        //単色背景のみ
+        noStroke()
+        rectMode(CORNER)
         if(info.level == 1){
-            background(this.color_set[0])
+            for(var i=0; i<80; i++){
+                fill(lerpColor(this.color_set[0][0], this.color_set[0][1], i/80))
+                rect(0, i*500/80, 1000, 500/70)
+            }
         }else if(info.level == 2){
-            background(lerpColor(this.color_set[0], this.color_set[1], (millis() - info.levelup_time) / 1000))
+            for(var i=0; i<80; i++){
+                fill(fill(lerpColor(this.color_set[0][0], this.color_set[1][0], (millis() - info.levelup_time) / 1000)), fill(lerpColor(this.color_set[0][1], this.color_set[1][1], (millis() - info.levelup_time) / 1000)), i/80)
+                rect(0, i*500/80, 1000, 500/70)
+            }
         }else {
-            background(lerpColor(this.color_set[1], this.color_set[2], (millis() - info.levelup_time) / 1000))
+            for(var i=0; i<80; i++){
+                fill(fill(lerpColor(this.color_set[1][0], this.color_set[2][0], (millis() - info.levelup_time) / 1000)), fill(lerpColor(this.color_set[1][1], this.color_set[2][1], (millis() - info.levelup_time) / 1000)), i/80)
+                rect(0, i*500/80, 1000, 500/70)
+            }
         }
-
-        //背景画像
-        // if(info.level == 1){
-        //     image(this.image_1, 0, 0)
-        // }else if(info.level == 2){
-        //     if((millis() - info.levelup_time)/4 > 255){
-        //         image(this.image_2, 0, 0)    
-        //     }else {
-        //         var a = (millis() - info.levelup_time)/4
-        //         image(this.image_1, 0, 0)
-        //         tint(255, (millis() - info.levelup_time)/4)
-        //         image(this.image_2, 0, 0)
-        //     }
-        // }else{
-        //     if((millis() - info.levelup_time)/4 > 255){
-        //         image(this.image_3, 0, 0)    
-        //     }else {
-        //         var a = (millis() - info.levelup_time)/4
-        //         image(this.image_2, 0, 0)
-        //         tint(255, (millis() - info.levelup_time)/4)
-        //         image(this.image_3, 0, 0)
-        //     }
-        // }
     }
 }
 
@@ -1122,7 +1107,7 @@ class RiseText {
     }
 }
 
-  /** タイトル表示を行う */
+/** タイトル表示を行う */
 class Title {
     /** コンストラクタ */
     constructor(){
@@ -1156,9 +1141,8 @@ class Title {
         text('LONG FLIGHT', 500, 230);
         fill(255, this.opacity)
         textSize(30)
-        text("Press the arrow key to start.", 500, 270)
-        this.drawArrowKey(380, 370)
-        this.drawSpaceKey(630, 396)
+        text("Click to start.", 500, 270)
+        this.drawHowTo(375, 330)
     }
 
     /** クリック後の画面を描画する */
@@ -1170,68 +1154,40 @@ class Title {
         textSize(50);
         text('LONG FLIGHT', 500, 230);
         textSize(30)
-        text("start", 653, 270)
-    }
-    
-    /**
-     * 矢印キーを描画する
-     * @param {number} x 
-     * @param {number} y 
-     */
-    drawArrowKey(x, y){
-        stroke(255)
-        strokeWeight(1)
-        fill(255, 50)
-        rectMode(CENTER)
-        rect(x, y-20, 40, 40)
-        rect(x, y+30, 40, 40)
-        rect(x-50, y+30, 40, 40)
-        rect(x+50, y+30, 40, 40)
-
-        fill(255)
-        noStroke()
-        beginShape()
-            vertex(x,y-30)
-            vertex(x-10, y-13)
-            vertex(x+10, y-13)
-        endShape(CLOSE)
-        beginShape()
-            vertex(x,y+40)
-            vertex(x-10, y+23)
-            vertex(x+10, y+23)
-        endShape(CLOSE)
-        beginShape()
-            vertex(x-59,y+30)
-            vertex(x-42, y+20)
-            vertex(x-42, y+40)
-        endShape(CLOSE)
-        beginShape()
-            vertex(x+59,y+30)
-            vertex(x+42, y+20)
-            vertex(x+42, y+40)
-        endShape(CLOSE)
-        textSize(20)
-        textAlign(CENTER)
-        text('move with arrow keys', x, y+75)
+        text("start", 551, 270)
     }
 
-    /**
-     * スペースバーを描画する
-     * @param {number} x 
-     * @param {number} y 
-     */
-    drawSpaceKey(x, y){
+    /** 操作方法を描画する */
+    drawHowTo(x, y){
+        noFill()
         stroke(255)
-        strokeWeight(1)
-        fill(255, 50)
-        rectMode(CENTER)
-        rect(x, y+5, 150, 40)
-        fill(255)
+        strokeWeight(3)
+        rectMode(CORNER)
+        rect(x-20, y-10, 300, 100)
+
+        this.drawCursor(x + 230, y + 30)
+
         noStroke()
+        fill(255)
         textSize(20)
-        textAlign(CENTER)
-        text('space bar', x, y+10)
-        text('shoot with space bar', x, y+50)
+        textAlign(LEFT)
+        text('・move with the mouse', x, y+30)
+        text('・click to attack', x, y+60)
+    }
+
+    /** カーソルを描画する */
+    drawCursor(x, y){
+        noStroke()
+        fill(255)
+        beginShape()
+            vertex(x, y)
+            vertex(x, y+30)
+            vertex(x+10, y+25)
+            vertex(x+15, y+35)
+            vertex(x+20, y+32)
+            vertex(x+15, y+23)
+            vertex(x+25, y+18)
+        endShape(CLOSE)
     }
 
     /** メンバ変数を更新する */
