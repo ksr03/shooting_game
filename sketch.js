@@ -969,10 +969,8 @@ class Background {
 /** 空を描画する */
 class Sky {
     constructor(){
-        this.image_1 = loadImage('bg1.jpg')
-        this.image_2 = loadImage('bg2.jpg')
-        this.image_3 = loadImage('bg3.jpg')
-        this.color_set = [color(131, 170, 176), color(223, 152, 107), color(40, 72, 99)]
+        /** @param {Array} color_set 空の色 */
+        this.color_set = [[color(98, 152, 160), color(157, 183, 187)], [color(217, 123, 94), color(229, 187, 123)], [color(43, 71, 97), color(55, 125, 161)]]
     }
 
     draw(){
@@ -980,13 +978,23 @@ class Sky {
     }
 
     drawSky(){
-        //単色背景のみ
+        noStroke()
+        rectMode(CORNER)
         if(info.level == 1){
-            background(this.color_set[0])
+            for(var i=0; i<80; i++){
+                fill(lerpColor(this.color_set[0][0], this.color_set[0][1], i/80))
+                rect(0, i*500/80, 1000, 500/70)
+            }
         }else if(info.level == 2){
-            background(lerpColor(this.color_set[0], this.color_set[1], (millis() - info.levelup_time) / 1000))
+            for(var i=0; i<80; i++){
+                fill(fill(lerpColor(this.color_set[0][0], this.color_set[1][0], (millis() - info.levelup_time) / 1000)), fill(lerpColor(this.color_set[0][1], this.color_set[1][1], (millis() - info.levelup_time) / 1000)), i/80)
+                rect(0, i*500/80, 1000, 500/70)
+            }
         }else {
-            background(lerpColor(this.color_set[1], this.color_set[2], (millis() - info.levelup_time) / 1000))
+            for(var i=0; i<80; i++){
+                fill(fill(lerpColor(this.color_set[1][0], this.color_set[2][0], (millis() - info.levelup_time) / 1000)), fill(lerpColor(this.color_set[1][1], this.color_set[2][1], (millis() - info.levelup_time) / 1000)), i/80)
+                rect(0, i*500/80, 1000, 500/70)
+            }
         }
     }
 }
