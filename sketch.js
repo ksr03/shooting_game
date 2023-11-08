@@ -968,34 +968,91 @@ class Background {
 
 /** 空を描画する */
 class Sky {
+    /** 
+     * コンストラクタ
+     * @param {Array} color_set 昼・晩・夜の空の色
+     * @param {Array} stars 星の情報を持つ配列
+     */
     constructor(){
         /** @param {Array} color_set 空の色 */
-        this.color_set = [[color(98, 152, 160), color(157, 183, 187)], [color(217, 123, 94), color(229, 187, 123)], [color(43, 71, 97), color(55, 125, 161)]]
+        this.color_set = [[color(98, 152, 160), color(157, 183, 187)], [color(225, 123, 90), color(229, 187, 123)], [color(43, 71, 97), color(55, 125, 161)]]
+        this.stars = []
+        for(var i=0; i<30; i++){
+            this.stars.push(new Star())
+        }
     }
 
+    /** drawで行う処理 */
     draw(){
         this.drawSky()
     }
 
+    /** 空を描画する */
     drawSky(){
         noStroke()
         rectMode(CORNER)
+        ellipseMode(CENTER)
         if(info.level == 1){
             for(var i=0; i<80; i++){
                 fill(lerpColor(this.color_set[0][0], this.color_set[0][1], i/80))
                 rect(0, i*500/80, 1000, 500/70)
             }
+            fill(226, 224, 214)
+            noStroke()
+            ellipse(800, 100, 50, 50)
         }else if(info.level == 2){
             for(var i=0; i<80; i++){
-                fill(fill(lerpColor(this.color_set[0][0], this.color_set[1][0], (millis() - info.levelup_time) / 1000)), fill(lerpColor(this.color_set[0][1], this.color_set[1][1], (millis() - info.levelup_time) / 1000)), i/80)
+                fill(lerpColor(lerpColor(this.color_set[0][0], this.color_set[1][0], (millis() - info.levelup_time) / 1000), lerpColor(this.color_set[0][1], this.color_set[1][1], (millis() - info.levelup_time) / 1000), i/80))
                 rect(0, i*500/80, 1000, 500/70)
             }
+            
+            fill(226, 224, 214, 255 - (millis() - info.levelup_time) / 4)
+            noStroke()
+            ellipse(800, 100, 50, 50)
+
+            fill(225, 226, 123, (millis() - info.levelup_time) / 4)
+            noStroke()
+            ellipse(900, 250, 50, 50)
         }else {
             for(var i=0; i<80; i++){
-                fill(fill(lerpColor(this.color_set[1][0], this.color_set[2][0], (millis() - info.levelup_time) / 1000)), fill(lerpColor(this.color_set[1][1], this.color_set[2][1], (millis() - info.levelup_time) / 1000)), i/80)
+                fill(lerpColor(lerpColor(this.color_set[1][0], this.color_set[2][0], (millis() - info.levelup_time) / 1000), lerpColor(this.color_set[1][1], this.color_set[2][1], (millis() - info.levelup_time) / 1000), i/80))
                 rect(0, i*500/80, 1000, 500/70)
             }
+
+            fill(225, 226, 123, 255 - (millis() - info.levelup_time) / 4)
+            noStroke()
+            ellipse(900, 250, 50, 50)
+
+            fill(201, 253, 255, (millis() - info.levelup_time) / 4)
+            for(var i=0; i<this.stars.length; i++){
+                this.stars[i].draw()
+            }
         }
+    }
+}
+
+/** 星の情報を保持する */
+class Star {
+    /** 
+     * コンストラクタ
+     * @param {Vector} location 位置
+     * @param {number} size 大きさ 
+     */
+    constructor(){
+        this.location = createVector(random(1, 1000), random(1, 500))
+        this.size = random(1, 5)
+    }
+
+    /** draw()で行う処理 */
+    draw(){
+        this.drawStar()
+    }
+
+    /** 星を描画する */
+    drawStar(){
+        noStroke()
+        ellipseMode(CENTER)
+        ellipse(this.location.x, this.location.y, this.size, this.size)
     }
 }
 
