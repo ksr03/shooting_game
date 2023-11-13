@@ -1313,23 +1313,28 @@ class Game {
 
     /** ゲームプレイ時の画面を描画する */
     drawGame1(){
-        this.sky.draw()
-        bg_1.draw()
-        bg_2.draw()
-        bg_3.draw()
-        enemy_list.draw()
-        player.draw()
-        info.draw()
-}
+        if(millis() - info.interval_time > 300){
+            this.sky.draw()
+            bg_1.draw()
+            bg_2.draw()
+            bg_3.draw()
+            enemy_list.draw()
+            player.draw()
+            info.draw()
+        }
+        //ダメージを受けた時の描画
+        else {
+            this.drawDamagedPlayer(true)
+        }
+    }
 
     /** ゲーム終了時の画面を描画する */
     drawGame2(){
-        background(11, 23, 37);
-        if(millis() - this.end_time < 400 ){
-            translate(random(-5, 5), random(-5, 5))
+        if(millis() - this.end_time < 400){
+            this.drawDamagedPlayer(true)
+        }else{
+            this.drawDamagedPlayer(false)
         }
-        player.drawPlayer()
-        resetMatrix()
 
         fill(11, 23, 37, this.opacity)
         rectMode(CORNER)
@@ -1350,6 +1355,16 @@ class Game {
                 game_state = 2
             }
         }
+    }
+
+    /** ダメージを受けた時の描画を行う */
+    drawDamagedPlayer(isShaking){
+        background(11, 23, 37);
+        if(isShaking){
+            translate(random(-5, 5), random(-5, 5))
+        }
+        player.drawPlayer()
+        resetMatrix()
     }
 
     /** プレイヤーの攻撃の追加を行う */
