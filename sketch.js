@@ -28,13 +28,7 @@ class Information {
             this.drawCount()
         }
         this.update()
-        this.drawHp()
-        this.drawScore()
-        this.drawLevel()
-        this.drawRounds()
-        if(this.bonus_score){
-            this.bonus_score.draw()
-        }
+        this.drawInformation()
     }
 
     /** レベル/スコアの更新を行う*/
@@ -48,6 +42,17 @@ class Information {
         } else if(this.level == 1 && this.score >= 3000){
             this.level = 2
             this.levelup_time = millis()
+        }
+    }
+
+    /** 全ての情報を描画する */
+    drawInformation(){
+        this.drawHp()
+        this.drawScore()
+        this.drawLevel()
+        this.drawRounds()
+        if(this.bonus_score){
+            this.bonus_score.draw()
         }
     }
     
@@ -231,9 +236,7 @@ class Information {
         if(millis() - this.interval_time >= 1500){
             this.hp -= 1
             player.velocity = createVector((player.location.x - location.x)/4, (player.location.y - location.y)/4)
-            if(this.hp != 0){
-                this.interval_time = millis()
-            }
+            this.interval_time = millis()
         }
     }
 
@@ -1359,7 +1362,17 @@ class Game {
 
     /** ダメージを受けた時の描画を行う */
     drawDamagedPlayer(isShaking){
-        background(11, 23, 37);
+        this.sky.drawSky()
+        bg_1.drawBackground()
+        bg_2.drawBackground()
+        bg_3.drawBackground()
+        info.drawInformation()
+        
+        fill(11, 23, 37, 150)
+        rectMode(CORNER)
+        noStroke()
+        rect(0, 0, 1000, 5000)
+
         if(isShaking){
             translate(random(-5, 5), random(-5, 5))
         }
