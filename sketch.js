@@ -28,13 +28,7 @@ class Information {
             this.drawCount()
         }
         this.update()
-        this.drawHp()
-        this.drawScore()
-        this.drawLevel()
-        this.drawRounds()
-        if(this.bonus_score){
-            this.bonus_score.draw()
-        }
+        this.drawInformation()
     }
 
     /** レベル/スコアの更新を行う*/
@@ -48,6 +42,17 @@ class Information {
         } else if(this.level == 1 && this.score >= 3000){
             this.level = 2
             this.levelup_time = millis()
+        }
+    }
+
+    /** 全ての情報を描画する */
+    drawInformation(){
+        this.drawHp()
+        this.drawScore()
+        this.drawLevel()
+        this.drawRounds()
+        if(this.bonus_score){
+            this.bonus_score.draw()
         }
     }
     
@@ -231,9 +236,7 @@ class Information {
         if(millis() - this.interval_time >= 1500){
             this.hp -= 1
             player.velocity = createVector((player.location.x - location.x)/4, (player.location.y - location.y)/4)
-            if(this.hp != 0){
-                this.interval_time = millis()
-            }
+            this.interval_time = millis()
         }
     }
 
@@ -1313,23 +1316,28 @@ class Game {
 
     /** ゲームプレイ時の画面を描画する */
     drawGame1(){
-        this.sky.draw()
-        bg_1.draw()
-        bg_2.draw()
-        bg_3.draw()
-        enemy_list.draw()
-        player.draw()
-        info.draw()
-}
+        if(millis() - info.interval_time > 300){
+            this.sky.draw()
+            bg_1.draw()
+            bg_2.draw()
+            bg_3.draw()
+            enemy_list.draw()
+            player.draw()
+            info.draw()
+        }
+        //ダメージを受けた時の描画
+        else {
+            this.drawDamagedPlayer(true)
+        }
+    }
 
     /** ゲーム終了時の画面を描画する */
     drawGame2(){
-        background(11, 23, 37);
-        if(millis() - this.end_time < 400 ){
-            translate(random(-5, 5), random(-5, 5))
+        if(millis() - this.end_time < 400){
+            this.drawDamagedPlayer(true)
+        }else{
+            this.drawDamagedPlayer(false)
         }
-        player.drawPlayer()
-        resetMatrix()
 
         fill(11, 23, 37, this.opacity)
         rectMode(CORNER)
@@ -1350,6 +1358,26 @@ class Game {
                 game_state = 2
             }
         }
+    }
+
+    /** ダメージを受けた時の描画を行う */
+    drawDamagedPlayer(isShaking){
+        this.sky.drawSky()
+        bg_1.drawBackground()
+        bg_2.drawBackground()
+        bg_3.drawBackground()
+        info.drawInformation()
+        
+        fill(11, 23, 37, 150)
+        rectMode(CORNER)
+        noStroke()
+        rect(0, 0, 1000, 5000)
+
+        if(isShaking){
+            translate(random(-5, 5), random(-5, 5))
+        }
+        player.drawPlayer()
+        resetMatrix()
     }
 
     /** プレイヤーの攻撃の追加を行う */
