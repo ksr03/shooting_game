@@ -378,7 +378,7 @@ class Player {
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
         if(this.attack_num > 0 && (millis() - this.attack_interval) > 200){
-            const attack = new PlayerAttack(this.location.x, this.location.y, this.angle)
+            const attack = new Attack(createVector(this.location.x, this.location.y), createVector(4, 7*sin(this.angle)),  1)
             this.attack_list.push(attack)
             this.attack_num--
 
@@ -695,18 +695,18 @@ class Enemy {
     addAttack(){
         if(millis() - this.attack_time > 0 && 0 < this.location.x){
             if(this.type == 1){
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 0), this.color)
+                var attack = new Attack(createVector(this.location.x, this.location.y), createVector(-8, 0), 2)
                 this.attack_list.push(attack)
                 this.attack_time = millis() + int(random(50, 1000))
             }else if(this.type == 2){
                 var velocity = createVector(player.location.x - this.location.x, player.location.y - this.location.y).normalize()
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(velocity.x*8, velocity.y*8), this.color)
+                var attack = new Attack(createVector(this.location.x, this.location.y), createVector(velocity.x*8, velocity.y*8), 2)
                 this.attack_list.push(attack)
                 this.attack_time = millis() + 5000
             }else {
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, 1), this.color)
+                var attack = new Attack(createVector(this.location.x, this.location.y), createVector(-8, 1), 2)
                 this.attack_list.push(attack)
-                var attack = new EnemyAttack(createVector(this.location.x, this.location.y), createVector(-8, -1), this.color)
+                var attack = new Attack(createVector(this.location.x, this.location.y), createVector(-8, -1), 2)
                 this.attack_list.push(attack)
                 this.attack_time = millis() + 3000
             }
@@ -811,87 +811,55 @@ class EnemyList{
     }
 }
 
-/** プレイヤーの攻撃の情報を保持する*/
-class PlayerAttack {
+/** 攻撃の情報を保持する */
+class Attack {
     /** 
      * コンストラクタ
-     * @param {number} x x座標
-     * @param {number} y y座標
-     * @param {number} angle 角度
+     * @param {Vector} location 位置
+     * @param {Vector} velocity 速度
+     * @param {number} type 種類（プレイヤーなら1、敵なら2）
      */
-    constructor(x, y, angle){
-        /** @param {number} location 位置 */
-        this.location = createVector(x, y)
-        /** @param {number} velocity 速度 */
-        this.velocity = createVector(4, 7*sin(angle))
+    constructor(location, velocity, type){
+        /** @param {Vector} location 位置 */
+        this.location = location
+        /** @param {Vector} velocity 速度 */
+        this.velocity = velocity
+        /** @param {number} type 種類 */
+        this.type = type
     }
 
-    /** drawで行う処理*/
+    /** draw()で行う関数 */
     draw(){
         this.move()
         this.drawAttack()
-    }
-
-    /**
-     * 位置を更新する
-     */
-    move(){
-        this.location.add(this.velocity)
-    }
-
-    /**
-     * 攻撃を描画する
-     */
-    drawAttack(){
-        noStroke()
-        rectMode(CENTER)
-        fill(255)
-        ellipse(this.location.x, this.location.y, 5, 5)
-
-        //攻撃の装飾
-        ellipseMode(CENTER)
-        for(var i=0; i<8; i++){
-            ellipse(this.location.x-this.velocity.x*i/2, this.location.y-this.velocity.y*i/2, 5, 5)
+        if(this.type == 2){
+            this.collision()
         }
     }
-}
 
-/** エネミーの攻撃の情報を保持する*/
-class EnemyAttack {
-    /**
-     * コンストラクタ
-     * @param {Vector} location 速度
-     * @param {Vector} velocity 速度
-     * @param {color} color 色
-     */
-    constructor(location, velocity, color){
-        this.location = location
-        this.velocity = velocity
-        this.color = color
-    }
-
-    /** drawで行う処理*/
-    draw(){
-        this.move()
-        this.drawAttack()
-        this.collision()
-    }
-
-    /** 位置を更新する*/
+    /** 位置を更新する */
     move(){
         this.location.add(this.velocity)
     }
 
-    /** 攻撃を描画する*/
+    /** 攻撃を描画する */
     drawAttack(){
         noStroke()
         rectMode(CENTER)
-        fill(this.color)
+        if(this.type == 1){
+            fill(255)
+        }else{
+            fill(20, 255, 255)
+        }
         ellipse(this.location.x, this.location.y, 5, 5)
 
         //攻撃の装飾
+        var n = 8
+        if(this.type == 2){
+            n = 4
+        }
         ellipseMode(CENTER)
-        for(var i=0; i<4; i++){
+        for(var i=0; i<n; i++){
             ellipse(this.location.x-this.velocity.x*i/4, this.location.y-this.velocity.y*i/2, 5, 5)
         }
     }
