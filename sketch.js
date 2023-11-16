@@ -387,17 +387,21 @@ class Player {
 
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
-        if(this.attack_num > 0 && (millis() - this.attack_time) > 200){
-            const attack = new Attack(createVector(this.location.x, this.location.y), createVector(4, 7*sin(this.angle)),  1)
-            this.attack_list.push(attack)
-            this.attack_num--
+        if((millis() - this.attack_time) > 200){
+            if(this.attack_num > 0){
+                const attack = new Attack(createVector(this.location.x, this.location.y), createVector(4, 7*sin(this.angle)),  1)
+                this.attack_list.push(attack)
+                this.attack_num--
 
-            this.attack_time = millis()
-            if(this.attack_charge == 1){
-                this.attack_charge = 0
+                this.attack_time = millis()
+                if(this.attack_charge == 1){
+                    this.attack_charge = 0
+                }
+                
+                se_attack1.play()
+            }else{
+                se_attack2.play()
             }
-            
-            se_attack.play()
         }
     }
 
@@ -1446,7 +1450,7 @@ var game_state
 var player, enemy_list, info
 var titleClass, gameClass, scoreClass
 var bgm
-var se_count, se_start, se_attack, se_drop, se_levelup, se_damage1, se_damage2, se_score
+var se_count, se_start, se_attack1, se_attack2, se_drop, se_levelup, se_damage1, se_damage2, se_score
 
 function setup(){
     createCanvas(1000, 500);
@@ -1459,7 +1463,8 @@ function setup(){
     bgm = loadSound('sounds/bgm.mp3')
     se_start = loadSound('sounds/se_start.mp3')
     se_count = loadSound('sounds/se_count.mp3')
-    se_attack = loadSound('sounds/se_attack.mp3')
+    se_attack1 = loadSound('sounds/se_attack1.mp3')
+    se_attack2 = loadSound('sounds/se_attack2.mp3')
     se_drop = loadSound('sounds/se_drop.mp3')
     se_levelup = loadSound('sounds/se_levelup.mp3')
     se_damage1 = loadSound('sounds/se_damage1.mp3')
