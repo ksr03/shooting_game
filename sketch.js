@@ -1,6 +1,5 @@
 /** プレイヤーの情報を保持する*/
 class Information {
-
     /** コンストラクタ*/
     constructor(){
         /** @param {number} start_time ゲーム開始時間 */
@@ -13,8 +12,8 @@ class Information {
         this.level = 1
         /** @param {number} levelup_time 前回レベルアップした時間 */
         this.levelup_time = millis() - 1000
-        /** @param {number} interval_time 前回ダメージを受けた時間 */
-        this.interval_time = -1000
+        /** @param {number} damaged_time 前回ダメージを受けた時間 */
+        this.damaged_time = -1000
         /** @param {number} bonus_score ボーナススコア */
         this.bonus_score = null
     }
@@ -24,7 +23,7 @@ class Information {
         if(this.hp == 1){
             this.drawDying()
         }
-        if(2500 < millis() - this.start_time && millis() - this.start_time < 5500){
+        if((2500 < millis() - this.start_time) && (millis() - this.start_time < 5500)){
             this.drawCount()
         }
         this.update()
@@ -69,7 +68,7 @@ class Information {
         for(var i=0; i<this.hp; i++){
             this.drawHeart(85 + i*37, 25, [255, 60, 130, 255])
         }
-        var t = millis() - this.interval_time 
+        var t = millis() - this.damaged_time 
         if(t < 300){
             this.drawHeart(85 + this.hp*37, 25 + t/15, [255, 60, 130, 300-t])
         }
@@ -228,15 +227,11 @@ class Information {
         }
     }
 
-    /**
-     * 体力を減らす
-     * @param {number} location 敵の位置
-     */
-    damage(location){
-        if(millis() - this.interval_time >= 1500){
+    /** 体力を減らす */
+    damage(){
+        if(millis() - this.damaged_time >= 1500){
             this.hp -= 1
-            player.velocity = createVector((player.location.x - location.x)/4, (player.location.y - location.y)/4)
-            this.interval_time = millis()
+            this.damaged_time = millis()
         }
     }
 
@@ -260,8 +255,8 @@ class Player {
         this.attack_num = 10;
         /** @param {Array} attack_list 弾丸クラスのリスト */
         this.attack_list = []
-        /** @param {number} attack_interval 弾丸を発射した直近の時間 */
-        this.attack_interval = 0
+        /** @param {number} attack_time 弾丸を発射した直近の時間 */
+        this.attack_time = 0
         /** @param {number} attack_charge 弾丸のチャージ率 */
         this.attack_charge = 1
         
@@ -310,7 +305,7 @@ class Player {
         //プレイヤー本体
         rectMode(CENTER)
         noStroke()
-        if(millis() - info.interval_time >= 1500)
+        if(millis() - info.damaged_time >= 1500)
             fill(255)
         else if(int(millis()/130) % 2 == 0){
             fill(250, 255, 80, 230)
@@ -322,7 +317,7 @@ class Player {
         noFill()
         strokeWeight(2)
         ellipseMode(CENTER)
-        if(millis() - info.interval_time >= 1500)
+        if(millis() - info.damaged_time >= 1500)
             stroke(255)
         else if(int(millis()/130) % 2 == 0){
             stroke(250, 255, 80, 230)
@@ -357,7 +352,7 @@ class Player {
 
     /** エフェクトを作成して配列に追加する*/
     addEffect(){
-        const effect = new PlayerEffect(this.location.x, this.location.y)
+        const effect = new PlayerEffect(this.location)
         if(this.effect_list.length < 50){
             this.effect_list.push(effect)
         }
@@ -377,12 +372,12 @@ class Player {
 
     /** 攻撃を作成して配列に追加する*/
     addAttack(){
-        if(this.attack_num > 0 && (millis() - this.attack_interval) > 200){
+        if(this.attack_num > 0 && (millis() - this.attack_time) > 200){
             const attack = new Attack(createVector(this.location.x, this.location.y), createVector(4, 7*sin(this.angle)),  1)
             this.attack_list.push(attack)
             this.attack_num--
 
-            this.attack_interval = millis()
+            this.attack_time = millis()
             if(this.attack_charge == 1){
                 this.attack_charge = 0
             }
@@ -411,6 +406,7 @@ class Player {
                 this.attack_charge = 0
             } else if(this.attack_num == 9){
                 this.attack_num++
+                this.attack_charge = 2
             }
         }
     }
@@ -433,9 +429,9 @@ class Player {
 
         for(var i=0; i<enemy_list.enemy_list.length; i++){
             location = createVector(enemy_list.enemy_list[i].location.x, enemy_list.enemy_list[i].location.y)
-            if(location.x <= this.location.x || 1000 <= location.x || Math.abs((this.location.y - location.y)/(this.location.x - location.x)) > 0.1745)
+            if(location.x <= this.location.x || 1000 <= location.x || Math.abs((this.location.y - location.y)/(this.location.x - location.x)) > 0.1745){
                 continue
-
+            }
             distance = dist(this.location.x, this.location.y, location.x, location.y)
             if(distance < min_distance){
                 this.target_no = i
@@ -453,12 +449,11 @@ class Player {
 class PlayerEffect {
     /** 
      * コンストラクタ
-     * @param {number} x x座標
-     * @param {number} y y座標
+     * @param {Vector} location 位置
      * */
-    constructor(x, y){
+    constructor(location){
         /** @param {Vector} location 位置 */
-        this.location = createVector(x, y)
+        this.location = createVector(location.x, location.y)
         /** @param {number} angle 角度 */
         this.angle = random(0, 6.28)
         /** @param {Vector} velocity 速度 */
@@ -518,7 +513,6 @@ class Enemy {
     draw(){
         this.move()
         if(this.type == 1){
-            //TODO: drawEnemy_1に変更
             this.drawEnemy_1()
         }else if(this.type == 2){
             this.drawEnemy_2()
@@ -543,7 +537,6 @@ class Enemy {
 
     /** 位置を更新する*/
     move(){
-        //位置の更新
         this.location.add(this.velocity)
     }
 
@@ -725,7 +718,7 @@ class Enemy {
         for(var i=0; i<player.attack_list.length; i++){
             if(dist(this.location.x, this.location.y, player.attack_list[i].location.x, player.attack_list[i].location.y) < 15){
                 for(var j=0; j<10; j++){
-                    this.effect_list.push(new ScoreEffect(this.location.x, this.location.y, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
+                    this.effect_list.push(new ScoreEffect(this.location, [-5, 5], [-5, 5], [random(20, 255), 255, 255]))
                 }
                 this.location.x = -50
                 player.attack_list[i].location.x = 1050
@@ -737,7 +730,7 @@ class Enemy {
     /** プレイヤーにダメージを与える*/
     collision(){
         if(dist(player.location.x, player.location.y, this.location.x, this.location.y) < 35 ){
-            info.damage(this.location)
+            info.damage()
         }
     }
 
@@ -766,7 +759,7 @@ class EnemyList{
         this.counter--
         if(this.counter <= 0){
             this.addEnemy()
-            this.counter = int(random(30, 60))
+            this.counter = int(random(30, info.level == 1 ? 60 : info.level == 2 ? 45 : 31))
         }
 
         this.drawEnemyList()
@@ -775,22 +768,15 @@ class EnemyList{
     /** エネミーを配列に追加する*/
     addEnemy(){
         //エネミーの生成
-        var enemy = new Enemy(1)
-        var rand
+        var enemy
+        var rand = 1
         if(info.level == 2){
             rand = int(random(1, 3))
-            if(rand == 2){
-                enemy = new Enemy(2)
-            }
         }
         if(info.level == 3){
             rand = int(random(1, 4))
-            if(rand == 2){
-                enemy = new Enemy(2)
-            }else if(rand == 3){
-                enemy = new Enemy(3)
-            }
         }
+        enemy = new Enemy(rand)
 
         if(this.enemy_list.length < 15){
             this.enemy_list.push(enemy)
@@ -1031,15 +1017,14 @@ class Star {
 class ScoreEffect {
     /** 
      * コンストラクタ
-     * @param {number} x x座標
-     * @param {number} y y座標
+     * @param {Vector} location 位置
      * @param {Array} range_x x方向の範囲
      * @param {Array} range_y y方向の範囲
-     * @param {Array} color 色
+     * @param {color} color 色
      */
-    constructor(x, y, range_x, range_y, color){
+    constructor(location, range_x, range_y, color){
         /** @param {Vector} location 位置 */
-        this.location = createVector(x, y)
+        this.location = createVector(location.x, location.y)
         /** @param {Vector} velocity 速度 */
         this.velocity = createVector(random(range_x[0], range_x[1]), random(range_y[0], range_y[1]))
       
@@ -1284,7 +1269,7 @@ class Game {
 
     /** ゲームプレイ時の画面を描画する */
     drawGame1(){
-        if(millis() - info.interval_time > 300){
+        if(millis() - info.damaged_time > 300){
             this.sky.draw()
             bg_1.draw()
             bg_2.draw()
@@ -1414,7 +1399,7 @@ class Score {
     drawEffect(){
         if(this.score_counter == info.score && this.effect_list.length == 0){
             for(var i=0; i<50; i++){
-                this.effect_list.push(new ScoreEffect(500, 250, [-20, 20], [-10, 3], [255, 255, random(100, 255)]))
+                this.effect_list.push(new ScoreEffect(createVector(500, 250), [-20, 20], [-10, 3], [255, 255, random(100, 255)]))
             }
         }
         for(var i=0; i<this.effect_list.length; i++){
