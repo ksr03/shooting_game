@@ -218,7 +218,7 @@ class Information {
         strokeWeight(5)
         arc(500, 230, 90, 90, -1.570796, count/1000 * 6.283184 - 1.570796)
         
-        if(0 < (millis() - this.start_time)%1000 && (millis() - this.start_time)%1000 < 500 && !se_count.isPlaying()){
+        if((count%1000 < 50 || 950 < count%1000) && !se_count.isPlaying()){
             se_count.play()
         }
     }
@@ -1149,7 +1149,7 @@ class Title {
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
         /** @param {Image} image タイトル画面の背景 */
-        this.image = loadImage('title.jpg')
+        this.image = loadImage('images/title.jpg')
     }
 
     /** draw()で行う処理 */
@@ -1374,7 +1374,7 @@ class Score {
         /** @param {Array} effect_list エフェクトを保持する配列 */
         this.effect_list = []
         /** @param {Image} image スコア表示画面の背景 */
-        this.image = loadImage('score.png')
+        this.image = loadImage('images/score.png')
     }
 
     /** draw()で行う処理 */
