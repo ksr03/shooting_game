@@ -34,13 +34,19 @@ class Information {
     update(){
         if(5500 <= millis() - this.start_time){
             this.score += this.level == 1 ? 0.5 : this.level == 2 ? 1.0 : 1.5
+            if(!bgm.isPlaying()){
+                bgm.loop()
+                bgm.setVolume(0.2)
+            }
         }
         if(this.level == 2 && this.score >= 6000){
             this.level = 3
             this.levelup_time = millis()
+            se_levelup.play()
         } else if(this.level == 1 && this.score >= 3000){
             this.level = 2
             this.levelup_time = millis()
+            se_levelup.play()
         }
     }
 
@@ -211,6 +217,10 @@ class Information {
 
         strokeWeight(5)
         arc(500, 230, 90, 90, -1.570796, count/1000 * 6.283184 - 1.570796)
+        
+        if((count%1000 < 50 || 950 < count%1000) && !se_count.isPlaying()){
+            se_count.play()
+        }
     }
 
     /** 瀕死のときに枠を表示する */
@@ -232,6 +242,11 @@ class Information {
         if(millis() - this.damaged_time >= 1500){
             this.hp -= 1
             this.damaged_time = millis()
+            if(this.hp == 1){
+                se_damage2.play()
+            }else {
+                se_damage1.play()
+            }
         }
     }
 
@@ -381,6 +396,8 @@ class Player {
             if(this.attack_charge == 1){
                 this.attack_charge = 0
             }
+            
+            se_attack.play()
         }
     }
 
@@ -723,6 +740,9 @@ class Enemy {
                 this.location.x = -50
                 player.attack_list[i].location.x = 1050
                 info.bonus()
+
+                se_drop.play()
+                se_drop.setVolume(0.5)
             }
         }
     }
@@ -1129,7 +1149,7 @@ class Title {
         /** @param {boolean} in_transition 遷移中かどうか */
         this.in_transition = false
         /** @param {Image} image タイトル画面の背景 */
-        this.image = loadImage('title.jpg')
+        this.image = loadImage('images/title.jpg')
     }
 
     /** draw()で行う処理 */
@@ -1234,6 +1254,7 @@ class Title {
         if(!this.in_transition && this.opacity >= 255){
             gameClass = new Game()
             this.in_transition = true
+            se_start.play()
         }
     }
 }
@@ -1303,6 +1324,7 @@ class Game {
         if(!this.in_transition && info.hp <= 0){
             this.in_transition = true
             this.end_time = millis()
+            bgm.stop()
         }
         if(this.in_transition){
             this.opacity += 20
@@ -1352,7 +1374,7 @@ class Score {
         /** @param {Array} effect_list エフェクトを保持する配列 */
         this.effect_list = []
         /** @param {Image} image スコア表示画面の背景 */
-        this.image = loadImage('score.png')
+        this.image = loadImage('images/score.png')
     }
 
     /** draw()で行う処理 */
@@ -1401,6 +1423,8 @@ class Score {
             for(var i=0; i<50; i++){
                 this.effect_list.push(new ScoreEffect(createVector(500, 250), [-20, 20], [-10, 3], [255, 255, random(100, 255)]))
             }
+            se_score.play()
+            se_score.setVolume(0.5)
         }
         for(var i=0; i<this.effect_list.length; i++){
             this.effect_list[i].draw()
@@ -1412,6 +1436,7 @@ class Score {
         if(this.time_counter >= 255){
             game_state = 0;
             titleClass = new Title()
+            se_start.play()
         }
     }
 }
@@ -1420,6 +1445,8 @@ var bg_1, bg_2, bg_3
 var game_state
 var player, enemy_list, info
 var titleClass, gameClass, scoreClass
+var bgm
+var se_count, se_start, se_attack, se_drop, se_levelup, se_damage1, se_damage2, se_score
 
 function setup(){
     createCanvas(1000, 500);
@@ -1429,6 +1456,15 @@ function setup(){
     bg_1 = new Background(50, 0.3, 300, [color(97, 147, 165), color(69, 104, 120), color(12, 45, 79)])
     bg_2 = new Background(40, 0.5, 330, [color(86, 130, 146), color(39, 76, 97), color(4, 29, 56)])
     bg_3 = new Background(30, 1, 350, [color(66, 106, 124), color(1, 38, 63), color(0, 10, 27)])
+    bgm = loadSound('sounds/bgm.mp3')
+    se_start = loadSound('sounds/se_start.mp3')
+    se_count = loadSound('sounds/se_count.mp3')
+    se_attack = loadSound('sounds/se_attack.mp3')
+    se_drop = loadSound('sounds/se_drop.mp3')
+    se_levelup = loadSound('sounds/se_levelup.mp3')
+    se_damage1 = loadSound('sounds/se_damage1.mp3')
+    se_damage2 = loadSound('sounds/se_damage2.mp3')
+    se_score = loadSound('sounds/se_score.mp3')
 }
 
 function draw(){
