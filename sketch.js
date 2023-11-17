@@ -425,9 +425,11 @@ class Player {
             if(this.attack_num < 9){
                 this.attack_num++
                 this.attack_charge = 0
+                se_charge.play()
             } else if(this.attack_num == 9){
                 this.attack_num++
                 this.attack_charge = 2
+                se_charge.play()
             }
         }
     }
@@ -1450,7 +1452,7 @@ var game_state
 var player, enemy_list, info
 var titleClass, gameClass, scoreClass
 var bgm
-var se_count, se_start, se_attack1, se_attack2, se_drop, se_levelup, se_damage1, se_damage2, se_score
+var se_count, se_start, se_attack1, se_attack2, se_drop, se_levelup, se_damage1, se_damage2, se_charge, se_score
 
 function setup(){
     createCanvas(1000, 500);
@@ -1469,6 +1471,7 @@ function setup(){
     se_levelup = loadSound('sounds/se_levelup.mp3')
     se_damage1 = loadSound('sounds/se_damage1.mp3')
     se_damage2 = loadSound('sounds/se_damage2.mp3')
+    se_charge = loadSound('sounds/se_charge.mp3')
     se_score = loadSound('sounds/se_score.mp3')
 }
 
