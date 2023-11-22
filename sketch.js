@@ -220,6 +220,7 @@ class Information {
         
         if((count%1000 < 50 || 950 < count%1000) && !se_count.isPlaying()){
             se_count.play()
+            se_count.setVolume(0.8)
         }
     }
 
@@ -244,8 +245,10 @@ class Information {
             this.damaged_time = millis()
             if(this.hp == 1){
                 se_damage2.play()
+                se_damage2.setVolume(0.9)
             }else {
                 se_damage1.play()
+                se_damage1.setVolume(0.9)
             }
         }
     }
@@ -399,8 +402,10 @@ class Player {
                 }
                 
                 se_attack1.play()
+                se_attack1.setVolume(0.7)
             }else{
                 se_attack2.play()
+                se_attack2.setVolume(0.7)
             }
         }
     }
@@ -426,10 +431,12 @@ class Player {
                 this.attack_num++
                 this.attack_charge = 0
                 se_charge.play()
+                se_charge.setVolume(0.9)
             } else if(this.attack_num == 9){
                 this.attack_num++
                 this.attack_charge = 2
                 se_charge.play()
+                se_charge.setVolume(0.9)
             }
         }
     }
@@ -748,7 +755,7 @@ class Enemy {
                 info.bonus()
 
                 se_drop.play()
-                se_drop.setVolume(0.5)
+                se_drop.setVolume(0.45)
             }
         }
     }
@@ -1261,6 +1268,7 @@ class Title {
             gameClass = new Game()
             this.in_transition = true
             se_start.play()
+            se_start.setVolume(0.7)
         }
     }
 }
@@ -1443,6 +1451,7 @@ class Score {
             game_state = 0;
             titleClass = new Title()
             se_start.play()
+            se_start.setVolume(0.7)
         }
     }
 }
